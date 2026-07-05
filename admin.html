@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard Layanan Internet</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome untuk Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Custom scrollbar tipis untuk area list agar tetap informatif tapi estetik */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex justify-center items-start text-slate-800">
+
+    <!-- Container Utama -->
+    <div class="w-full max-w-md bg-slate-50 min-h-screen pb-24 relative flex flex-col shadow-lg">
+        
+        <!-- ================= HALAMAN DASHBOARD UTAMA ADMIN ================= -->
+        <div id="dashboard-page" class="flex-1 flex flex-col">
+            <!-- HEADER -->
+            <header class="flex items-center justify-between px-6 pt-6 pb-4 bg-white">
+                <div class="flex items-center space-x-3">
+                    <div class="flex flex-col">
+                        <span class="text-xl font-bold text-blue-600 tracking-tight">Bytel</span>
+                        <span class="text-[9px] text-slate-400 -mt-1">by PT. Terabyte</span>
+                    </div>
+                    <div class="h-6 w-[1px] bg-slate-200"></div>
+                    <div class="flex flex-col">
+                        <span class="text-xs text-slate-400 leading-none">Otoritas</span>
+                        <span id="admin-nama" class="text-sm font-bold text-slate-700 mt-0.5">APUNK (Admin)</span>
+                    </div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                    <i class="fa-solid fa-user-shield text-blue-600 text-lg"></i>
+                </div>
+            </header>
+
+            <!-- KONTEN UTAMA -->
+            <main id="main-content" class="px-5 space-y-5 flex-1 overflow-y-auto no-scrollbar">
+                
+                <!-- SECTION 1: BANNER UTAMA ADMIN -->
+                <section class="bg-gradient-to-r from-blue-600 to-blue-500 rounded-3xl p-6 text-white shadow-md shadow-blue-100 mt-2 relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-white opacity-10 rounded-full"></div>
+                    <div class="absolute -right-4 -bottom-10 w-24 h-24 bg-white opacity-10 rounded-full"></div>
+                    
+                    <h3 class="text-xs font-medium opacity-80 tracking-wide">Total Omset Belum Tertagih</h3>
+                    <div id="banner-total-omset" class="text-3xl font-extrabold mt-2 tracking-tight">Rp 0</div>
+                    <p id="banner-periode" class="text-xs opacity-90 mt-1">Memuat periode...</p>
+                    
+                    <button onclick="switchTabAdmin('pelanggan')" class="absolute right-5 bottom-6 bg-white text-blue-600 font-semibold text-xs px-4 py-2 rounded-xl shadow-sm hover:bg-slate-50 transition-colors">
+                        Kelola
+                    </button>
+                </section>
+
+                <!-- SECTION 2: GRID MENU ADMIN -->
+                <section class="grid grid-cols-4 gap-3">
+                    <button onclick="switchTabAdmin('pelanggan')" class="bg-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-sm border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-2">
+                            <i class="fa-solid fa-users text-base"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-slate-700">Pelanggan</span>
+                    </button>
+                    <button onclick="switchTabAdmin('konfirmasi')" class="bg-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-sm border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-2">
+                            <i class="fa-solid fa-receipt text-base"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-slate-700">Konfirmasi</span>
+                    </button>
+                    <button onclick="switchTabAdmin('log')" class="bg-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-sm border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-2">
+                            <i class="fa-solid fa-list-check text-base"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-slate-700">Log Akses</span>
+                    </button>
+                    <button onclick="switchTabAdmin('beban')" class="bg-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-sm border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-2">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-base"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-slate-700">Beban</span>
+                    </button>
+                </section>
+
+                <!-- SECTION 3: RINGKASAN STATUS KESELURUHAN -->
+                <section class="grid grid-cols-3 gap-3">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100/50">
+                        <p class="text-[10px] font-medium text-slate-400">Total Member</p>
+                        <p id="ringkasan-total-member" class="text-2xl font-bold text-blue-600 mt-1">0</p>
+                        <p class="text-[10px] text-slate-400 mt-1">Anggota</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100/50">
+                        <p class="text-[10px] font-medium text-slate-400">Sudah Bayar</p>
+                        <p id="ringkasan-sudah-bayar" class="text-2xl font-bold text-emerald-500 mt-1">0</p>
+                        <p class="text-[10px] text-slate-400 mt-1">Invoice Lunas</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100/50">
+                        <p class="text-[10px] font-medium text-slate-400">Belum Bayar</p>
+                        <p id="ringkasan-belum-bayar" class="text-2xl font-bold text-red-500 mt-1">0</p>
+                        <p class="text-[10px] text-slate-400 mt-1">Invoice Pending</p>
+                    </div>
+                </section>
+
+                <!-- SECTION 4: ANTREAN KONFIRMASI PEMBAYARAN (DENGAN SCROLL SCROLLBAR) -->
+                <section class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Antrean Konfirmasi Pembayaran</h2>
+                        <button onclick="switchTabAdmin('konfirmasi')" class="text-[11px] font-semibold text-blue-600 hover:underline">Lihat Semua</button>
+                    </div>
+
+                    <!-- Wrapper List dengan batasan tinggi & Scroll -->
+                    <div id="antrean-admin-wrapper" class="max-h-[320px] overflow-y-auto pr-1 custom-scrollbar space-y-2">
+                        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100/50 text-center text-xs text-slate-400 py-6">
+                            Menghubungkan ke server database...
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+            <!-- BOTTOM NAVIGATION BAR ADMIN -->
+            <nav class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-slate-100 p-2 flex justify-between items-center z-50">
+                <button onclick="switchTabAdmin('home')" id="nav-home" class="nav-item flex-1 flex flex-col items-center justify-center py-2 text-blue-600 bg-blue-50 rounded-xl transition-all">
+                    <i class="fa-solid fa-chart-pie text-sm mb-1"></i>
+                    <span class="text-[10px] font-semibold">Home</span>
+                </button>
+                <button onclick="switchTabAdmin('pelanggan')" id="nav-pelanggan" class="nav-item flex-1 flex flex-col items-center justify-center py-2 text-slate-400 hover:text-slate-600 transition-all">
+                    <i class="fa-solid fa-users text-sm mb-1"></i>
+                    <span class="text-[10px] font-medium">Pelanggan</span>
+                </button>
+                <button onclick="switchTabAdmin('konfirmasi')" id="nav-konfirmasi" class="nav-item flex-1 flex flex-col items-center justify-center py-2 text-slate-400 hover:text-slate-600 transition-all">
+                    <i class="fa-solid fa-receipt text-sm mb-1"></i>
+                    <span class="text-[10px] font-medium">Konfirmasi</span>
+                </button>
+                <button onclick="switchTabAdmin('log')" id="nav-log" class="nav-item flex-1 flex flex-col items-center justify-center py-2 text-slate-400 hover:text-slate-600 transition-all">
+                    <i class="fa-solid fa-list-check text-sm mb-1"></i>
+                    <span class="text-[10px] font-medium">Log</span>
+                </button>
+                <button onclick="switchTabAdmin('beban')" id="nav-beban" class="nav-item flex-1 flex flex-col items-center justify-center py-2 text-slate-400 hover:text-slate-600 transition-all">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-sm mb-1"></i>
+                    <span class="text-[10px] font-medium">Beban</span>
+                </button>
+            </nav>
+        </div>
+
+    </div>
+
+    <!-- LOGIKA JAVASCRIPT PANEL ADMIN -->
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbxHGrWY0LT0TMZEhMUlwkWHZ7KldqTNWJpPwqmqclUDeSHPl3syFretfbTxWIIUVLao/exec";
+        let homeAdminContent = "";
+        
+        let dbAdminState = {
+            totalMember: 0, totalOmset: 0, lunasCount: 0, pendingCount: 0, listPelanggan: []
+        };
+
+        window.onload = function() {
+            muatDataOtomatisAdmin();
+        };
+
+        function muatDataOtomatisAdmin() {
+            const opsiBulan = { month: 'long', year: 'numeric' };
+            const bulanIni = new Date().toLocaleDateString('id-ID', opsiBulan);
+
+            fetch(`${API_URL}?action=GET_STATS`)
+                .then(response => response.json())
+                .then(res => {
+                    if(res.success) {
+                        dbAdminState = {
+                            totalMember: res.totalMember || 0,
+                            totalOmset: res.totalOmset || 0,
+                            lunasCount: res.lunasCount || 0,
+                            pendingCount: res.pendingCount || 0,
+                            listPelanggan: res.dataAnggota || []
+                        };
+
+                        document.getElementById('banner-total-omset').innerText = "Rp " + dbAdminState.totalOmset.toLocaleString('id-ID');
+                        document.getElementById('banner-periode').innerText = "Periode Berjalan • " + bulanIni;
+                        document.getElementById('ringkasan-total-member').innerText = dbAdminState.totalMember;
+                        document.getElementById('ringkasan-sudah-bayar').innerText = dbAdminState.lunasCount;
+                        document.getElementById('ringkasan-belum-bayar').innerText = dbAdminState.pendingCount;
+
+                        buildAntreanHome();
+                        homeAdminContent = document.getElementById('main-content').innerHTML;
+                    } else {
+                        document.getElementById('antrean-admin-wrapper').innerHTML = `
+                            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100/50 text-center text-xs text-red-500 py-4">
+                                Gagal memuat data. Respons server tidak valid.
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('antrean-admin-wrapper').innerHTML = `
+                        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100/50 text-center text-xs text-red-500 py-4">
+                            Gagal terhubung ke Google Apps Script.
+                        </div>
+                    `;
+                    console.error("Error Fetching Admin Data:", err);
+                });
+        }
+
+        // DESIGN COMPACT & TANPA TOMBOL DETAIL USER
+        function buildAntreanHome() {
+            const wrapper = document.getElementById('antrean-admin-wrapper');
+            const dataPending = dbAdminState.listPelanggan.filter(p => p.statusTagihan !== 'Lunas');
+
+            if(dataPending.length === 0) {
+                wrapper.innerHTML = `
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100/50 text-center text-xs text-emerald-600 py-6">
+                        <i class="fa-solid fa-circle-check text-base mb-1 block"></i> Semua tagihan bulan ini lunas!
+                    </div>
+                `;
+                return;
+            }
+
+            wrapper.innerHTML = dataPending.map(item => `
+                <div class="bg-white rounded-xl p-3 shadow-sm border border-slate-100/70 flex justify-between items-center space-x-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center space-x-2">
+                            <h4 class="text-xs font-bold text-slate-800 uppercase truncate">${item.nama}</h4>
+                            <span class="bg-red-50 text-red-500 font-bold text-[8px] px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">
+                                Belum Bayar
+                            </span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-0.5 truncate">${item.idUser} • Aktif: ${item.tanggalAktivasi || '-'}</p>
+                        <div class="text-sm font-bold text-red-500 mt-0.5">Rp ${(item.totalBayar || 0).toLocaleString('id-ID')}</div>
+                    </div>
+                    
+                    <button onclick="prosesKonfirmasiAdmin('${item.idUser}', '${item.nama}')" class="bg-blue-600 text-white rounded-lg py-1.5 px-3 text-[11px] font-semibold flex items-center space-x-1 hover:bg-blue-700 shadow-sm transition-colors shrink-0">
+                        <i class="fa-solid fa-check text-[10px]"></i>
+                        <span>Konfirmasi/Bayar</span>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function prosesKonfirmasiAdmin(idUser, nama) {
+            if(confirm(`Konfirmasi pelunasan untuk pelanggan ${nama} (${idUser})?`)) {
+                document.getElementById('antrean-admin-wrapper').innerHTML = `
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100/50 text-center text-xs text-blue-500 py-4">
+                        Memproses pelunasan...
+                    </div>
+                `;
+                
+                fetch(`${API_URL}?action=KONFIRMASI_LUNAS&id=${idUser}`)
+                    .then(response => response.json())
+                    .then(res => {
+                        if(res.success) {
+                            alert(`Pelanggan ${nama} sukses dikonfirmasi LUNAS!`);
+                            muatDataOtomatisAdmin();
+                        } else {
+                            alert("Gagal memproses: " + res.message);
+                            muatDataOtomatisAdmin();
+                        }
+                    })
+                    .catch(err => {
+                        alert("Terjadi kesalahan jaringan.");
+                        muatDataOtomatisAdmin();
+                    });
+            }
+        }
+
+        function switchTabAdmin(tabName) {
+            const mainContent = document.getElementById('main-content');
+            if(!mainContent) return;
+            
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('text-blue-600', 'bg-blue-50', 'font-semibold');
+                el.classList.add('text-slate-400');
+                const textSpan = el.querySelector('span');
+                if(textSpan) textSpan.classList.replace('font-semibold', 'font-medium');
+            });
+
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            if (activeNav) {
+                activeNav.classList.remove('text-slate-400');
+                activeNav.classList.add('text-blue-600', 'bg-blue-50');
+                const textSpan = activeNav.querySelector('span');
+                if(textSpan) textSpan.classList.replace('font-medium', 'font-semibold');
+            }
+
+            if (tabName === 'home') {
+                mainContent.innerHTML = homeAdminContent;
+                buildAntreanHome();
+            } 
+            // TAB PELANGGAN: DENGAN MAX-HEIGHT DAN VERTICAL SCROLLBAR
+            else if (tabName === 'pelanggan') {
+                mainContent.innerHTML = `
+                    <div class="space-y-3 pt-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-1 h-4 bg-blue-600 rounded-full"></div>
+                            <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Daftar Anggota Aktif</h2>
+                        </div>
+                        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar divide-y divide-slate-100">
+                            ${dbAdminState.listPelanggan.map(p => `
+                                <div class="py-2.5 flex justify-between items-center text-xs">
+                                    <div class="min-w-0 flex-1 pr-2">
+                                        <p class="font-bold text-slate-700 uppercase truncate">${p.nama}</p>
+                                        <p class="text-[10px] text-slate-400 mt-0.5">ID: ${p.idUser} • Aktif: ${p.tanggalAktivasi || '-'}</p>
+                                    </div>
+                                    <span class="text-[11px] font-bold shrink-0 ${p.statusTagihan === 'Lunas' ? 'text-emerald-500' : 'text-red-500'}">${p.statusTagihan || 'Belum Bayar'}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } 
+            else {
+                mainContent.innerHTML = `
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 text-center space-y-4 mt-4">
+                        <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mx-auto text-2xl">
+                            <i class="fa-solid fa-folder-open"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800 capitalize">Modul ${tabName}</h3>
+                            <p class="text-xs text-slate-400 mt-1">Struktur tampilan komponen ${tabName} siap dikoneksikan ke sheet.</p>
+                        </div>
+                        <button onclick="switchTabAdmin('home')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition-colors">
+                            Kembali ke Home Admin
+                        </button>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
