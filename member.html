@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Layanan Internet</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome untuk Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex justify-center items-start text-slate-800">
+
+    <!-- Container Utama -->
+    <div class="w-full max-w-md bg-slate-50 min-h-screen pb-24 relative flex flex-col shadow-lg">
+        
+        <!-- ================= HALAMAN LOGIN / INPUT ID USER ================= -->
+        <div id="login-page" class="flex-1 flex flex-col justify-center items-center px-6 py-12 bg-white">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-extrabold tracking-tight text-blue-600">PLALANGAN.NET</h1>
+                <p class="text-xs text-slate-400 mt-1">Silakan masukkan ID User untuk accessing layanan</p>
+            </div>
+            
+            <div class="w-full space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-slate-500 block mb-1">ID User / No.Whatsapp</label>
+                    <input type="text" id="input-id" placeholder="Contoh: 628123456789" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors">
+                </div>
+                <button onclick="cekIdPelanggan()" id="btn-submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl py-3 text-sm shadow-sm transition-colors flex justify-center items-center">
+                    <span>Masuk Dashboard</span>
+                </button>
+                <p id="error-msg" class="text-xs text-red-500 text-center hidden"></p>
+            </div>
+        </div>
+
+        <!-- ================= HALAMAN DASHBOARD UTAMA ================= -->
+        <div id="dashboard-page" class="hidden flex-1 flex flex-col">
+            <!-- HEADER -->
+            <header class="flex items-center justify-between px-6 pt-6 pb-4 bg-white">
+                <div class="flex items-center space-x-3">
+                    <div class="flex flex-col">
+                        <span class="text-xl font-bold text-blue-600 tracking-tight">PLALANGAN.NET</span>
+                        <span class="text-[9px] text-slate-400 -mt-1">By.Remaja Plalangan</span>
+                    </div>
+                    <div class="h-6 w-[1px] bg-slate-200"></div>
+                    <div class="flex flex-col">
+                        <span class="text-xs text-slate-400 leading-none">Hallo</span>
+                        <span id="user-nama" class="text-sm font-bold text-slate-700 mt-0.5">-</span>
+                    </div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center border border-slate-100">
+                    <i class="fa-solid fa-user text-slate-400 text-lg"></i>
+                </div>
+            </header>
+
+            <!-- KONTEN UTAMA -->
+            <main id="main-content" class="px-5 space-y-5 flex-1 overflow-y-auto no-scrollbar">
+                
+                <!-- SECTION 1: BANNER UTAMA -->
+                <section id="banner-status-bg" class="bg-gradient-to-r from-blue-600 to-blue-500 rounded-3xl p-6 text-white shadow-md shadow-blue-100 mt-2 relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-white opacity-10 rounded-full"></div>
+                    <div class="absolute -right-4 -bottom-10 w-24 h-24 bg-white opacity-10 rounded-full"></div>
+                    
+                    <h3 id="banner-label" class="text-xs font-medium opacity-80 tracking-wide">Tagihan Belum Bayar</h3>
+                    <div id="banner-jumlah" class="text-3xl font-extrabold mt-2 tracking-tight">0</div>
+                    <p id="banner-sub-label" class="text-xs opacity-90 mt-1">1 tagihan aktif</p>
+                    
+                    <button onclick="switchTab('tagihan')" class="absolute right-5 bottom-6 bg-white text-blue-600 font-semibold text-xs px-4 py-2 rounded-xl shadow-sm hover:bg-slate-50 transition-colors">
+                        Detail
+                    </button>
+                </section>
+
+                <!-- SECTION 2: GRID MENU -->
+                <section class="grid grid-cols-4 gap-3">
+                    <button onclick="switchTab('tagihan')" class="bg-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-sm border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-2">
+                            <i class="fa-solid fa-file-invoice-dollar text-base"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-slate-700">Tagihan</span>
+                    </button>
+                    <button onclick="switchTab('paket')" class="bg-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-sm border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-2">
+                            <i class="fa-solid fa-wifi text-base"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-slate-700">Paket</span>
+                    </button>
+                    <button onclick="switchTab('bantuan')" class="bg-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-sm border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-2">
+                            <i class="fa-solid fa-headset text-base"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-slate-700">TF / Bayar</span>
+                    </button>
+                    <button onclick="switchTab('akun')" class="bg-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-sm border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-2">
+                            <i class="fa-solid fa-user text-base"></i>
+                        </div>
+                        <span class="text-[11px] font-semibold text-slate-700">Akun</span>
+                    </button>
+                </section>
+
+                <!-- SECTION 3: RINGKASAN STATUS -->
+                <section class="grid grid-cols-3 gap-3">
+                    <!-- KARTU 1: TOTAL LAYANAN -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100/50">
+                        <p class="text-[10px] font-medium text-slate-400">Total Layanan</p>
+                        <p id="ringkasan-layanan" class="text-2xl font-bold text-blue-600 mt-1">0</p>
+                        <p class="text-[10px] text-slate-400 mt-1">Services</p>
+                    </div>
+                    
+                    <!-- KARTU 2: TOTAL TAGIHAN -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100/50">
+                        <p class="text-[10px] font-medium text-slate-400">Total Tagihan</p>
+                        <p id="ringkasan-tagihan" class="text-2xl font-bold text-amber-500 mt-1">1</p>
+                        <p id="ringkasan-bulan" class="text-[10px] text-slate-400 mt-1">-</p>
+                    </div>
+                    
+                    <!-- KARTU 3: STATUS PEMBAYARAN -->
+                    <div id="kartu-status" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100/50">
+                        <p id="label-status" class="text-[10px] font-medium text-red-500">Belum Bayar</p>
+                        <p id="angka-status" class="text-2xl font-bold text-red-500 mt-1">1</p>
+                        <p class="text-[10px] text-slate-400 mt-1">Invoice</p>
+                    </div>
+                </section>
+
+                <!-- SECTION 4: DAFTAR TAGIHAN BULAN INI -->
+                <section class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-slate-800">Tagihan Bulan Ini</h2>
+                        <button onclick="switchTab('history')" class="text-xs font-semibold text-blue-600 hover:underline">Riwayat</button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100/50 space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 id="card-nama" class="text-sm font-bold text-slate-800">-</h4>
+                                <p id="card-id-bulan" class="text-[11px] text-slate-400 mt-0.5">-</p>
+                            </div>
+                            <span id="card-badge-status" class="bg-red-50 text-red-500 font-bold text-[9px] px-2.5 py-1 rounded-full uppercase tracking-wider">
+                                Belum Bayar
+                            </span>
+                        </div>
+
+                        <div id="card-jumlah" class="text-2xl font-black text-red-500 tracking-tight">0</div>
+                        
+                        <div class="text-[11px] text-slate-400 space-y-0.5">
+                            <p>Paket Base: <span id="card-paket" class="font-medium text-slate-600">-</span></p>
+                            <p>Jumlah Qty: <span id="card-qty" class="font-medium text-slate-600">-</span></p>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 pt-2">
+                            <button class="border border-blue-600 text-blue-600 rounded-xl py-2 px-3 text-xs font-semibold flex items-center justify-center space-x-1.5 hover:bg-blue-50 transition-colors">
+                                <i class="fa-solid fa-file-invoice text-[11px]"></i>
+                                <span>Invoice</span>
+                            </button>
+                            <button class="bg-blue-600 text-white rounded-xl py-2 px-3 text-xs font-semibold flex items-center justify-center space-x-1.5 hover:bg-blue-700 shadow-sm shadow-blue-100 transition-colors">
+                                <i class="fa-solid fa-credit-card text-[11px]"></i>
+                                <span>Bayar</span>
+                            </button>
+                            <button class="bg-orange-500 text-white rounded-xl py-2 px-3 text-xs font-semibold flex items-center justify-center space-x-1.5 hover:bg-orange-600 shadow-sm shadow-orange-100 transition-colors">
+                                <span>Konfirmasi</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+            <!-- BOTTOM NAVIGATION BAR -->
+            <nav class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-slate-100 p-2 flex justify-between items-center z-50">
+                <button onclick="switchTab('home')" id="nav-home" class="nav-item flex-1 flex flex-col items-center justify-center py-2 text-blue-600 bg-blue-50 rounded-xl transition-all">
+                    <i class="fa-solid fa-house text-sm mb-1"></i>
+                    <span class="text-[10px] font-semibold">Home</span>
+                </button>
+                <button onclick="switchTab('tagihan')" id="nav-tagihan" class="nav-item flex-1 flex flex-col items-center justify-center py-2 text-slate-400 hover:text-slate-600 transition-all">
+                    <i class="fa-solid fa-file-lines text-sm mb-1"></i>
+                    <span class="text-[10px] font-medium">Tagihan</span>
+                </button>
+                <button onclick="switchTab('history')" id="nav-history" class="nav-item flex-1 flex flex-col items-center justify-center py-2 text-slate-400 hover:text-slate-600 transition-all">
+                    <i class="fa-solid fa-clock-rotate-left text-sm mb-1"></i>
+                    <span class="text-[10px] font-medium">History</span>
+                </button>
+                <button onclick="switchTab('paket')" id="nav-paket" class="nav-item flex-1 flex flex-col items-center justify-center py-2 text-slate-400 hover:text-slate-600 transition-all">
+                    <i class="fa-solid fa-wifi text-sm mb-1"></i>
+                    <span class="text-[10px] font-medium">Paket</span>
+                </button>
+                <button onclick="switchTab('akun')" id="nav-akun" class="nav-item flex-1 flex flex-col items-center justify-center py-2 text-slate-400 hover:text-slate-600 transition-all">
+                    <i class="fa-solid fa-user text-sm mb-1"></i>
+                    <span class="text-[10px] font-medium">Akun</span>
+                </button>
+            </nav>
+        </div>
+
+    </div>
+
+    <!-- LOGIKA JAVASCRIPT -->
+    <script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzCDjNFkHc9oaC4uX2_Crlp8u_Y_QVT6Ek5sOI-VOp0nkCTnOwuX07KU1I598QRDovm/exec";
+let homeContent = ""; 
+
+let activeUserData = {
+    nama: "-", idUser: "-", formattedTagihan: "0", formattedBasePaket: "0", qtyJumlah: "0", bulanIni: "-",
+    isLunas: false, statusTeks: "Belum Bayar", nominalAsli: "0",
+    vouchers: [] 
+};
+
+// --- TAMBAHAN LOGIKA OTOMATIS LOGIN SAAT REFRESH ---
+window.addEventListener('DOMContentLoaded', () => {
+    const savedIdUser = localStorage.getItem('sesi_pelanggan_bytel');
+    if (savedIdUser) {
+        document.getElementById('input-id').value = savedIdUser;
+        cekIdPelanggan();
+    }
+});
+
+function cekIdPelanggan() {
+    const idInput = document.getElementById('input-id').value.trim();
+    const errorMsg = document.getElementById('error-msg');
+    const btnSubmit = document.getElementById('btn-submit');
+    
+    if (!idInput) {
+        errorMsg.innerText = "Masukkan ID User terlebih dahulu!";
+        errorMsg.classList.remove('hidden');
+        return;
+    }
+
+    errorMsg.classList.add('hidden');
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = `<span>Memeriksa...</span>`;
+
+    fetch(`${API_URL}?id=${idInput}`)
+        .then(response => response.json())
+        .then(response => {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = `<span>Masuk Dashboard</span>`;
+
+            if (response.success) {
+                // --- TAMBAHAN LOGIKA SIMPAN SESI SAAT BERHASIL LOGIN ---
+                localStorage.setItem('sesi_pelanggan_bytel', idInput);
+
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('dashboard-page').classList.remove('hidden');
+
+                // 1. Ambil data mentah asli dari Google Sheets
+                let nilaiPaketAsli = Number(response.data.paket) || 0;
+                let qtyJumlahAsli = Number(response.data.jumlah) || 0;
+                
+                // DETEKSI STATUS LUNAS (berdasarkan teks status dari server)
+                const statusLunasDariServer = (response.data.status && response.data.status.toLowerCase() === 'lunas');
+                
+                const opsiBulan = { month: 'long', year: 'numeric' };
+                const bulanIni = new Date().toLocaleDateString('id-ID', opsiBulan);
+
+                // Format mata uang untuk tampilan rincian
+                const nominalAsliTerbayar = nilaiPaketAsli.toLocaleString('id-ID'); 
+                const formattedBasePaket = nilaiPaketAsli.toLocaleString('id-ID');
+
+                activeUserData = {
+                    nama: response.data.nama,
+                    idUser: response.data.idUser,
+                    formattedTagihan: statusLunasDariServer ? "0" : nominalAsliTerbayar, // Banner atas jadi 0 kalau lunas
+                    formattedBasePaket: formattedBasePaket, // Tetap menyimpan nominal asli paket
+                    qtyJumlah: qtyJumlahAsli, // Tetap menyimpan jumlah user asli
+                    bulanIni: bulanIni,
+                    isLunas: statusLunasDariServer,
+                    statusTeks: statusLunasDariServer ? "Lunas" : "Belum Bayar",
+                    nominalAsli: nominalAsliTerbayar, // Tetap menyimpan total nominal asli paket
+                    vouchers: response.vouchers || [] 
+                };
+
+                // Suntik data ke UI Utama (Home)
+                document.getElementById('user-nama').innerText = activeUserData.nama;
+                document.getElementById('card-nama').innerText = activeUserData.nama;
+                document.getElementById('ringkasan-layanan').innerText = activeUserData.qtyJumlah;
+                document.getElementById('card-qty').innerText = activeUserData.qtyJumlah + " User ";
+                document.getElementById('card-paket').innerText = "Rp " + activeUserData.formattedBasePaket;
+                document.getElementById('card-id-bulan').innerText = activeUserData.idUser + " - " + activeUserData.bulanIni;
+                document.getElementById('ringkasan-bulan').innerText = activeUserData.bulanIni;
+
+                // PENGKONDISIAN TAMPILAN JIKA LUNAS
+                if (activeUserData.isLunas) {
+                    // Banner atas diset 0
+                    document.getElementById('banner-status-bg').className = "bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-3xl p-6 text-white shadow-md shadow-emerald-100 mt-2 relative overflow-hidden";
+                    document.getElementById('banner-label').innerText = "Sisa Tagihan Bulan Ini";
+                    document.getElementById('banner-jumlah').innerText = "0"; 
+                    document.getElementById('banner-sub-label').innerText = "Layanan aktif penuh";
+                    
+                    // Kotak Ringkasan Status
+                    document.getElementById('ringkasan-tagihan').innerText = "0";
+                    document.getElementById('angka-status').innerText = "0";
+                    document.getElementById('angka-status').className = "text-2xl font-bold text-emerald-500 mt-1";
+                    document.getElementById('label-status').innerText = "Sudah Bayar";
+                    document.getElementById('label-status').className = "text-[10px] font-medium text-emerald-500";
+                    
+                    // Kartu Detail Utama Home (Menampilkan nominal asli paket Anda meskipun lunas)
+                    document.getElementById('card-jumlah').innerText = "Rp " + activeUserData.nominalAsli; 
+                    document.getElementById('card-jumlah').className = "text-2xl font-black text-emerald-500 tracking-tight";
+                    document.getElementById('card-badge-status').innerText = "Lunas";
+                    document.getElementById('card-badge-status').className = "bg-emerald-50 text-emerald-500 font-bold text-[9px] px-2.5 py-1 rounded-full uppercase tracking-wider";
+                } else {
+                    // Jika Belum Bayar
+                    document.getElementById('banner-status-bg').className = "bg-gradient-to-r from-blue-600 to-blue-500 rounded-3xl p-6 text-white shadow-md shadow-blue-100 mt-2 relative overflow-hidden";
+                    document.getElementById('banner-label').innerText = "Tagihan Belum Bayar";
+                    document.getElementById('banner-jumlah').innerText = "Rp " + activeUserData.nominalAsli;
+                    document.getElementById('card-jumlah').innerText = "Rp " + activeUserData.nominalAsli;
+                    document.getElementById('card-jumlah').className = "text-2xl font-black text-red-500 tracking-tight";
+                    document.getElementById('card-badge-status').innerText = "Belum Bayar";
+                    document.getElementById('card-badge-status').className = "bg-red-50 text-red-500 font-bold text-[9px] px-2.5 py-1 rounded-full uppercase tracking-wider";
+                    document.getElementById('ringkasan-tagihan').innerText = "1";
+                    document.getElementById('angka-status').innerText = "1";
+                    document.getElementById('angka-status').className = "text-2xl font-bold text-red-500 mt-1";
+                    document.getElementById('label-status').innerText = "Belum Bayar";
+                    document.getElementById('label-status').className = "text-[10px] font-medium text-red-500";
+                }
+
+                // Kunci HTML Home yang sudah ter-update data aslinya
+                homeContent = document.getElementById('main-content').innerHTML;
+            } else {
+                errorMsg.innerText = response.message || "ID User tidak ditemukan.";
+                errorMsg.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = `<span>Masuk Dashboard</span>`;
+            errorMsg.innerText = "Gagal memuat data. Periksa koneksi internet.";
+            errorMsg.classList.remove('hidden');
+            console.error("Error:", error)
+        });
+}
+
+function switchTab(tabName) {
+    const mainContent = document.getElementById('main-content');
+    if(!mainContent) return;
+    
+    // Perubahan Nav Item aktif
+    document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.remove('text-blue-600', 'bg-blue-50', 'font-semibold');
+        el.classList.add('text-slate-400');
+    });
+    const activeNav = document.getElementById(`nav-${tabName}`);
+    if (activeNav) activeNav.classList.add('text-blue-600', 'bg-blue-50');
+
+    if (tabName === 'home') {
+        mainContent.innerHTML = homeContent;
+    } 
+    else if (tabName === 'tagihan') {
+        const badgeWarna = activeUserData.isLunas ? "bg-emerald-50 text-emerald-500" : "bg-red-50 text-red-500";
+        const nominalWarna = activeUserData.isLunas ? "text-emerald-500" : "text-red-500";
+        
+        mainContent.innerHTML = `
+            <div class="space-y-4 pt-2">
+                <div class="flex items-center space-x-2">
+                    <div class="w-1 h-5 bg-blue-600 rounded-full"></div>
+                    <h2 class="text-sm font-bold text-slate-800">Rincian Tagihan Aktif</h2>
+                </div>
+
+                ${activeUserData.isLunas ? `
+                <div class="bg-emerald-50 border border-emerald-200/60 rounded-2xl p-4 flex items-start space-x-3">
+                    <div class="text-emerald-500 mt-0.5"><i class="fa-solid fa-circle-check text-xs"></i></div>
+                    <div class="flex-1">
+                        <h4 class="text-xs font-bold text-emerald-800">Terima Kasih!</h4>
+                        <p class="text-[11px] text-emerald-700 mt-0.5">Pembayaran Anda bulan ini telah kami terima. Nikmati terus koneksi internet lancar dari Bytel.</p>
+                    </div>
+                </div>` : `
+                <div class="bg-amber-50 border border-amber-200/60 rounded-2xl p-4 flex items-start space-x-3">
+                    <div class="text-amber-500 mt-0.5"><i class="fa-solid fa-circle-exclamation text-xs"></i></div>
+                    <div class="flex-1">
+                        <h4 class="text-xs font-bold text-amber-800">Batas Waktu Pembayaran Maksimal tanggal 15-20</h4>
+                        <p class="text-[11px] text-amber-700 mt-0.5">Segera lakukan pembayaran sebelum internet dinonaktifkan / BLOKIR.</p>
+                    </div>
+                </div>`}
+
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
+                    <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-medium tracking-wider uppercase">Periode Tagihan</span>
+                            <p class="text-xs font-bold text-slate-700 mt-0.5">${activeUserData.bulanIni}</p>
+                        </div>
+                        <span class="${badgeWarna} font-bold text-[9px] px-3 py-1 rounded-full uppercase tracking-wider">
+                            ${activeUserData.statusTeks}
+                        </span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Harga Paket (Base)</span>
+                            <span class="font-semibold text-slate-700">Rp ${activeUserData.formattedBasePaket}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Jumlah Layanan (Qty)</span>
+                            <span class="font-semibold text-slate-700">${activeUserData.qtyJumlah} User </span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Biaya Admin / PPN</span>
+                            <span class="font-semibold text-slate-700">Rp 0</span>
+                        </div>
+                        <div class="border-t border-dashed border-slate-200 my-2"></div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-800">Total Pembayaran</span>
+                            <span class="text-lg font-black ${nominalWarna} tracking-tight">Rp ${activeUserData.nominalAsli}</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        ${activeUserData.isLunas ? `
+                        <div class="w-full bg-emerald-50 text-emerald-600 text-center font-bold rounded-xl py-3 text-xs border border-emerald-200/50 flex justify-center items-center space-x-2">
+                            <i class="fa-solid fa-square-check"></i>
+                            <span>Tagihan Sudah Terbayar</span>
+                        </div>` : `
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-3 text-xs flex justify-center items-center space-x-2">
+                            <i class="fa-solid fa-money-bill-wave text-[11px]"></i>
+                            <span>Bayar Sekarang Melalui Admin</span>
+                        </button>`}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    else if (tabName === 'history') {
+        mainContent.innerHTML = `
+            <div class="space-y-4 pt-2">
+                <div class="flex items-center space-x-2">
+                    <div class="w-1 h-5 bg-blue-600 rounded-full"></div>
+                    <h2 class="text-sm font-bold text-slate-800">Riwayat Pembayaran</h2>
+                </div>
+
+                <div class="space-y-3">
+                    ${activeUserData.isLunas ? `
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 flex items-center justify-between ring-2 ring-emerald-50">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
+                                <i class="fa-solid fa-circle-check text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800">Pembayaran Tagihan</h4>
+                                <p class="text-[10px] text-emerald-600 font-semibold mt-0.5">Periode ${activeUserData.bulanIni} • Lunas</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-bold text-emerald-600 block">Rp ${activeUserData.nominalAsli}</span>
+                            <span class="text-[9px] text-white bg-emerald-500 px-1.5 py-0.5 rounded mt-0.5 inline-block font-semibold">Bulan Ini</span>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100/70 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
+                                <i class="fa-solid fa-circle-check text-xs"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800">Pembayaran Tagihan</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Periode Bulan Lalu • Lunas</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-bold text-emerald-600 block">Rp ${activeUserData.nominalAsli}</span>
+                            <span class="text-[9px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded mt-0.5 inline-block">Sukses</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100/70 flex items-center justify-between opacity-70">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
+                                <i class="fa-solid fa-circle-check text-xs"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800">Pembayaran Tagihan</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Periode 2 Bulan Lalu • Lunas</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-bold text-emerald-600 block">Rp ${activeUserData.nominalAsli}</span>
+                            <span class="text-[9px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded mt-0.5 inline-block">Sukses</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    } 
+    else if (tabName === 'paket') {
+        mainContent.innerHTML = `
+            <div class="space-y-4 pt-2">
+                <div class="flex items-center space-x-2">
+                    <div class="w-1 h-5 bg-blue-600 rounded-full"></div>
+                    <h2 class="text-sm font-bold text-slate-800">Pilihan Paket Bytel</h2>
+                </div>
+
+                <div class="grid grid-cols-1 gap-3">
+                    <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex items-center justify-between relative overflow-hidden">
+                        <div class="absolute right-0 top-0 bg-orange-500 text-white text-[8px] font-bold px-2 py-0.5 rounded-bl-xl uppercase tracking-wider">Promo</div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                                <i class="fa-solid fa-bolt text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800 uppercase">Paket 1 Hari</h4>
+                                <p class="text-[10px] text-orange-600 font-semibold mt-0.5">Beli 5 Gratis 2</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm font-black text-blue-600 block">Rp 1.000</span>
+                            <span class="text-[9px] text-slate-400">/ Hari</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                                <i class="fa-solid fa-hourglass-half text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800 uppercase">Paket 10 Hari</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Akses internet reguler</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm font-black text-slate-800 block">Rp 5.000</span>
+                            <span class="text-[9px] text-slate-400">/ 10 Hari</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-blue-100 rounded-2xl p-4 shadow-sm flex items-center justify-between relative overflow-hidden bg-gradient-to-br from-white to-blue-50/20">
+                        <div class="absolute right-0 top-0 bg-blue-600 text-white text-[8px] font-bold px-2 py-0.5 rounded-bl-xl uppercase tracking-wider">Best Seller</div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-sm shadow-blue-200">
+                                <i class="fa-solid fa-calendar-days text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800 uppercase">Paket 30 Hari</h4>
+                                <p class="text-[10px] text-blue-600 font-medium mt-0.5">Hemat & Paling Populer</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm font-black text-blue-600 block">Rp 15.000</span>
+                            <span class="text-[9px] text-slate-400">/ Bulan</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 shadow-sm flex items-center justify-between relative overflow-hidden">
+                        <div class="absolute right-0 top-0 bg-emerald-600 text-white text-[8px] font-bold px-2 py-0.5 rounded-bl-xl uppercase tracking-wider">Weekend</div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
+                                <i class="fa-solid fa-couch text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-emerald-800 uppercase">Sabtu & Minggu</h4>
+                                <p class="text-[10px] text-emerald-600 font-medium mt-0.5">Gunakan Kode  : 666999</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm font-black text-emerald-600 uppercase tracking-tight block">Free</span>
+                            <span class="text-[9px] text-emerald-500 font-bold">GRATIS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    else if (tabName === 'bantuan') {
+        mainContent.innerHTML = `
+            <div class="space-y-4 pt-2">
+                <div class="flex items-center space-x-2">
+                    <div class="w-1 h-5 bg-blue-600 rounded-full"></div>
+                    <h2 class="text-sm font-bold text-slate-800">Pusat Bantuan</h2>
+                </div>
+
+                <!-- BANNER INFO PEMBAYARAN MERAH LEMBUT SENADA DENGAN NOTIFIKASI BATAS WAKTU -->
+                <div class="bg-gradient-to-r from-red-500 to-rose-400 rounded-2xl p-5 text-white shadow-sm border border-red-400/20 space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-circle-info text-red-100 text-sm"></i>
+                        <span class="text-xs font-bold uppercase tracking-wider text-red-50">Info Pembayaran Bisa Melalui</span>
+                    </div>
+                    
+                    <!-- Grid Teks Metode Pembayaran -->
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-2.5 flex items-center space-x-2 border border-white/10">
+                            <i class="fa-solid fa-user-shield text-red-100 text-xs"></i>
+                            <span class="text-[11px] font-bold text-white uppercase">ADMIN</span>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-2.5 flex items-center space-x-2 border border-white/10">
+                            <i class="fa-solid fa-wallet text-red-100 text-xs"></i>
+                            <span class="text-[11px] font-bold text-white uppercase">DANA</span>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-2.5 flex items-center space-x-2 border border-white/10">
+                            <i class="fa-solid fa-wallet text-red-100 text-xs"></i>
+                            <span class="text-[11px] font-bold text-white uppercase">OVO</span>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-2.5 flex items-center space-x-2 border border-white/10">
+                            <i class="fa-solid fa-money-bill-wave text-red-100 text-xs"></i>
+                            <span class="text-[11px] font-bold text-white uppercase">SHOPEEPAY</span>
+                        </div>
+                    </div>
+
+                    <p class="text-[10px] italic text-red-100/90 pt-1 text-center font-semibold">
+                        *Harap konfirmasi ke Admin setelah melakukan transfer pembayaran.
+                    </p>
+                </div>
+            </div>
+        `;
+    }
+    else if (tabName === 'akun') {
+        let voucherRowsHTML = "";
+        
+        if (!activeUserData.vouchers || activeUserData.vouchers.length === 0) {
+            voucherRowsHTML = `
+                <div class="p-4 flex justify-between items-center text-xs">
+                    <span class="text-slate-400 font-medium">Kode Voucher Aktif</span>
+                    <span class="text-slate-400 italic">Tidak ada voucher aktif</span>
+                </div>
+            `;
+        } else {
+            activeUserData.vouchers.forEach((v, index) => {
+                voucherRowsHTML += `
+                    <div class="p-4 flex justify-between items-center text-xs">
+                        <span class="text-slate-400 font-medium">Kode Voucher ${index + 1}</span>
+                        <div class="flex items-center space-x-2.5">
+                            <span class="font-bold text-blue-600 tracking-wider bg-slate-50 px-2.5 py-1 rounded border border-slate-100">${v.kode}</span>
+                            <button onclick="salinVoucher('${v.kode}')" class="text-slate-400 hover:text-blue-600 transition-colors p-1">
+                                <i class="fa-regular fa-copy text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        mainContent.innerHTML = `
+            <div class="space-y-5 pt-2">
+                <div class="flex items-center space-x-2">
+                    <div class="w-1 h-5 bg-blue-600 rounded-full"></div>
+                    <h2 class="text-sm font-bold text-slate-800">Profil</h2>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col items-center text-center space-y-3">
+                    <div class="w-16 h-16 rounded-full bg-blue-50 border-2 border-blue-100 flex items-center justify-center text-blue-600 relative">
+                        <i class="fa-solid fa-user text-2xl"></i>
+                        <div class="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white"></div>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">${activeUserData.nama}</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">ID User: ${activeUserData.idUser}</p>
+                    </div>
+                    <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        Member Aktif
+                    </span>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 divide-y divide-slate-100 overflow-hidden">
+                    <div class="p-4 flex justify-between items-center text-xs">
+                        <span class="text-slate-400 font-medium">Nama Lengkap</span>
+                        <span class="font-bold text-slate-700">${activeUserData.nama}</span>
+                    </div>
+                    <div class="p-4 flex justify-between items-center text-xs">
+                        <span class="text-slate-400 font-medium">Akun / User (ID)</span>
+                        <span class="font-bold text-slate-700 tracking-wide">${activeUserData.idUser}</span>
+                    </div>
+                    <div class="p-4 flex justify-between items-center text-xs">
+                        <span class="text-slate-400 font-medium">Total / Terhubung</span>
+                        <span class="font-bold text-blue-600">${activeUserData.qtyJumlah}  Device</span>
+                    </div>
+                    
+                    ${voucherRowsHTML}
+                    
+                    <div class="p-4 flex justify-between items-center text-xs">
+                        <span class="text-slate-400 font-medium">Provider Network</span>
+                        <span class="font-bold text-slate-700">By_Plalangan.net</span>
+                    </div>
+                </div>
+
+                <div>
+                    <button onclick="localStorage.removeItem('sesi_pelanggan_bytel'); window.location.reload();" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl py-3 text-xs transition-colors flex justify-center items-center space-x-2">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Keluar / Ganti ID User</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    else {
+        mainContent.innerHTML = `
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 text-center space-y-4 mt-4">
+                <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mx-auto text-2xl">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 capitalize">Halaman ${tabName}</h3>
+                    <p class="text-xs text-slate-400 mt-1">Fitur penunjang halaman ${tabName} siap dikembangkan.</p>
+                </div>
+                <button onclick="switchTab('home')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition-colors">
+                    Kembali ke Home
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Tambahan fungsi utilitas global untuk menyalin kode voucher
+function salinVoucher(kode) {
+    navigator.clipboard.writeText(kode).then(() => {
+        alert("Kode voucher " + kode + " berhasil disalin!");
+    }).catch(err => {
+        console.error("Gagal menyalin text: ", err);
+    });
+}
+    </script>
+</body>
+</html>
