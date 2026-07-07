@@ -49,13 +49,13 @@
             <header class="flex items-center justify-between px-6 pt-6 pb-4 bg-white">
                 <div class="flex items-center space-x-3">
                     <div class="flex flex-col">
-                        <span class="text-xl font-bold text-blue-600 tracking-tight">Bytel</span>
-                        <span class="text-[9px] text-slate-400 -mt-1">by PT. Terabyte</span>
+                        <span class="text-xl font-bold text-blue-600 tracking-tight">PLALANGAN.NET</span>
+                        <span class="text-[9px] text-slate-400 -mt-1">by Remaja Plalangan</span>
                     </div>
                     <div class="h-6 w-[1px] bg-slate-200"></div>
                     <div class="flex flex-col">
                         <span class="text-xs text-slate-400 leading-none">Otoritas</span>
-                        <span id="admin-nama" class="text-sm font-bold text-slate-700 mt-0.5">APUNK (Admin)</span>
+                        <span id="admin-nama" class="text-sm font-bold text-slate-700 mt-0.5">MS(Admin)</span>
                     </div>
                 </div>
                 <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
@@ -73,6 +73,7 @@
                     
                     <h3 class="text-xs font-medium opacity-80 tracking-wide">Total Omset Belum Tertagih</h3>
                     <div id="banner-total-omset" class="text-3xl font-extrabold mt-2 tracking-tight">Rp 0</div>
+                    <div id="banner-total-masuk" class="text-[10px] font-medium bg-white/20 inline-block px-2.5 py-0.5 rounded-lg mt-1 mb-0.5 tracking-wide">● Total Masuk: Rp 0</div>
                     <p id="banner-periode" class="text-xs opacity-90 mt-1">Memuat periode...</p>
                     
                     <button onclick="switchTabAdmin('pelanggan')" class="absolute right-5 bottom-6 bg-white text-blue-600 font-semibold text-xs px-4 py-2 rounded-xl shadow-sm hover:bg-slate-50 transition-colors">
@@ -201,13 +202,22 @@
                         };
 
                         document.getElementById('banner-total-omset').innerText = "Rp " + dbAdminState.totalOmset.toLocaleString('id-ID');
-                        document.getElementById('banner-periode').innerText = "Periode Berjalan • " + bulanIni;
-                        document.getElementById('ringkasan-total-member').innerText = dbAdminState.totalMember;
-                        document.getElementById('ringkasan-sudah-bayar').innerText = dbAdminState.lunasCount;
-                        document.getElementById('ringkasan-belum-bayar').innerText = dbAdminState.pendingCount;
 
-                        buildAntreanHome();
-                        homeAdminContent = document.getElementById('main-content').innerHTML;
+// --- PASANG LOGIKA HITUNGAN OTOMATIS DI SINI ---
+let totalUangMasuk = dbAdminState.listPelanggan
+    .filter(p => p.statusTagihan === 'Lunas')
+    .reduce((sum, p) => sum + (p.totalBayar || 0), 0);
+
+document.getElementById('banner-total-masuk').innerText = "● Total Masuk: Rp " + totalUangMasuk.toLocaleString('id-ID');
+// -----------------------------------------------
+
+document.getElementById('banner-periode').innerText = "Periode Berjalan • " + bulanIni;
+document.getElementById('ringkasan-total-member').innerText = dbAdminState.totalMember;
+document.getElementById('ringkasan-sudah-bayar').innerText = dbAdminState.lunasCount;
+document.getElementById('ringkasan-belum-bayar').innerText = dbAdminState.pendingCount;
+
+buildAntreanHome();
+homeAdminContent = document.getElementById('main-content').innerHTML;
                     } else {
                         document.getElementById('antrean-admin-wrapper').innerHTML = `
                             <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-100/50 text-center text-xs text-red-500 py-4">
