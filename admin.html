@@ -101,8 +101,8 @@
                         <span class="text-xs font-bold text-slate-800">Admin</span>
                     </div>
                     <button onclick="if(confirm('Keluar dari Panel Admin?')) logoutApp();" class="w-10 h-10 rounded-full icon-member-blue flex items-center justify-center active:scale-95 transition-all shadow-md cursor-pointer" title="Keluar / Logout">
-                    <i class="fa-solid fa-right-from-bracket text-white text-sm"></i>
-                </button>
+                        <i class="fa-solid fa-right-from-bracket text-white text-sm"></i>
+                    </button>
                 </div>
             </header>
 
@@ -148,30 +148,38 @@
 
     </div>
 
-    <!-- MODAL INPUT TRANSAKSI TABUNGAN -->
+    <!-- MODAL INPUT TRANSAKSI KEUANGAN & TABUNGAN -->
     <div id="modal-tabungan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-xl space-y-4 relative">
             <button onclick="tutupModalTabungan()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center">
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
             <div class="flex items-center space-x-2.5">
-                <div class="w-10 h-10 icon-member-green rounded-2xl flex items-center justify-center">
+                <div class="w-10 h-10 bg-emerald-600 rounded-2xl flex items-center justify-center">
                     <i class="fa-solid fa-wallet text-white text-base"></i>
                 </div>
-                <h3 class="text-base font-bold text-slate-800">Catat Transaksi Tabungan</h3>
+                <h3 class="text-base font-bold text-slate-800">Catat Transaksi Keuangan</h3>
             </div>
             
             <div class="space-y-3 text-xs">
                 <div>
+                    <label class="block font-semibold text-slate-500 mb-1.5">Sumber / Sasaran Akun</label>
+                    <select id="input-trans-akun" class="w-full border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-emerald-500 font-bold text-slate-800 bg-slate-50">
+                        <option value="DOMPET">Dompet </option>
+                        <option value="BANKER">Tabungan</option>
+                    </select>
+                </div>
+                <div>
                     <label class="block font-semibold text-slate-500 mb-1.5">Jenis Transaksi</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" id="btn-jns-masuk" onclick="pilihJenisTrans('MASUK')" class="py-3 rounded-2xl font-bold border border-emerald-500 bg-emerald-50 text-emerald-600 shadow-sm transition-all">Pemasukan (+)</button>
-                        <button type="button" id="btn-jns-keluar" onclick="pilihJenisTrans('KELUAR')" class="py-3 rounded-2xl font-bold border border-slate-200 text-slate-500 transition-all">Pengeluaran (-)</button>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button type="button" id="btn-jns-masuk" onclick="pilihJenisTrans('MASUK')" class="py-2.5 rounded-xl font-bold border border-emerald-500 bg-emerald-50 text-emerald-600 text-[11px] transition-all">Pemasukan (+)</button>
+                        <button type="button" id="btn-jns-keluar" onclick="pilihJenisTrans('KELUAR')" class="py-2.5 rounded-xl font-bold border border-slate-200 text-slate-500 text-[11px] transition-all">Pengeluaran (-)</button>
+                        <button type="button" id="btn-jns-mutasi" onclick="pilihJenisTrans('MUTASI')" class="py-2.5 rounded-xl font-bold border border-slate-200 text-slate-500 text-[11px] transition-all">Tranfer Tabungan (⇄)</button>
                     </div>
                 </div>
                 <div>
                     <label class="block font-semibold text-slate-500 mb-1.5">Keterangan</label>
-                    <input type="text" id="input-trans-ket" placeholder="Contoh: Kas Iuran / Beli Kabel" class="w-full border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-emerald-500 bg-slate-50">
+                    <input type="text" id="input-trans-ket" placeholder="Contoh: Operasional / Beli Kabel" class="w-full border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-emerald-500 bg-slate-50">
                 </div>
                 <div>
                     <label class="block font-semibold text-slate-500 mb-1.5">Nominal (Rp)</label>
@@ -220,12 +228,13 @@
 
     <!-- LOGIKA JAVASCRIPT ADMIN -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzqU0DFsCpHcjHTkbrnezy8eDRQOn0IjNEJ9cx_5arW--F6-WUWqAZ5GJHgLIuLo28b/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycby_ChSy6plVkEPsPIDnUDC5bdDi8Gt_aDQqFzCdScbHaKkefp9SUJ-1LzJIS5pV6wjf/exec";
         const PIN_ADMIN_RAHASIA = "25121987";
 
         let selectedJenisTrans = "MASUK";
         let targetVoucherUser = { idUser: '', nama: '' };
         let activeSubTabPesanan = "Listrik";
+        window.activeTabKeuangan = 'dompet';
 
         let dbAdminState = {
             totalMember: 0,
@@ -235,6 +244,8 @@
             listPelanggan: [],
             dataIuran: [],
             totalSisaSaldo: 0,
+            saldoOperasional: 0,
+            tabunganUtama: 0,
             dataTabungan: [],
             orders: { Listrik: [], BeliLampu: [], Print: [], Jastip: [] }
         };
@@ -277,6 +288,8 @@
                         dbAdminState.listPelanggan = res.dataAnggota || [];
                         dbAdminState.dataIuran = res.dataIuran || [];
                         dbAdminState.totalSisaSaldo = res.totalSisaSaldo || 0;
+                        dbAdminState.saldoOperasional = res.saldoOperasional || 0;
+                        dbAdminState.tabunganUtama = res.tabunganUtama || 0;
                         dbAdminState.dataTabungan = res.dataTabungan || [];
                         
                         const activeNav = document.getElementById('nav-pesanan');
@@ -496,6 +509,11 @@
             `;
         }
 
+        function switchSubTabKeuangan(tab) {
+            window.activeTabKeuangan = tab;
+            switchTabAdmin('tabungan');
+        }
+
         function switchTabAdmin(tabName) {
             const mainContent = document.getElementById('main-content');
             if(!mainContent) return;
@@ -543,40 +561,91 @@
                     </div>
                 `;
             } 
-// ====================================================================
-            // [TAB TABUNGAN ADMIN] MODE TABEL SUPER MIKRO & SHEETS (GRID KOTAK)
+            // ====================================================================
+            // [TAB TABUNGAN ADMIN] DUAL SUB-TAB TOGGLE (DOMPET VS BANKER)
             // ====================================================================
             else if (tabName === 'tabungan') {
-                const sisaSaldoFormat = Number(dbAdminState.totalSisaSaldo || 0).toLocaleString('id-ID');
-                
-                let rowsTabunganHTML = (!dbAdminState.dataTabungan || dbAdminState.dataTabungan.length === 0)
-                    ? `<tr><td colspan="5" class="py-4 text-center text-slate-400 border border-slate-200">Belum ada transaksi.</td></tr>`
-                    : dbAdminState.dataTabungan.map((item) => `
+                if (!window.activeTabKeuangan) window.activeTabKeuangan = 'dompet';
+
+                let totalIuranMasuk = 0;
+                let countWargaLunas = 0;
+                (dbAdminState.listPelanggan || []).forEach(p => {
+                    if ((p.statusTagihan || '').toLowerCase() === 'lunas') {
+                        countWargaLunas++;
+                        totalIuranMasuk += Number(p.totalBayar || 0);
+                    }
+                });
+
+                // Filter data transaksi sesuai tab aktif
+                let dataTabelAktif = (dbAdminState.dataTabungan || []).filter(item => {
+                    const akun = (item.akun || 'DOMPET').toUpperCase();
+                    return window.activeTabKeuangan === 'banker' ? akun === 'BANKER' : akun === 'DOMPET';
+                });
+
+                let rowsHTML = (dataTabelAktif.length === 0)
+                    ? `<tr><td colspan="5" class="py-4 text-center text-slate-400 border border-slate-200">Belum ada transaksi di ${window.activeTabKeuangan.toUpperCase()}.</td></tr>`
+                    : dataTabelAktif.map(item => `
                         <tr class="hover:bg-amber-50/50 transition-colors">
-                            <td class="py-1 px-1.5 border border-slate-200 font-mono text-[9px] text-slate-600 whitespace-nowrap text-center">${item.tanggal}</td>
+                            <td class="py-1 px-1.5 border border-slate-200 font-mono text-[9px] text-slate-600 text-center">${item.tanggal}</td>
                             <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-medium text-slate-800 leading-tight">${item.keterangan}</td>
-                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-bold text-emerald-600 text-right whitespace-nowrap">${item.masuk > 0 ? '+' + item.masuk.toLocaleString('id-ID') : ''}</td>
-                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-bold text-rose-500 text-right whitespace-nowrap">${item.keluar > 0 ? '-' + item.keluar.toLocaleString('id-ID') : ''}</td>
-                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-black text-blue-600 text-right whitespace-nowrap bg-slate-50/50">${item.sisa.toLocaleString('id-ID')}</td>
+                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-bold text-emerald-600 text-right">${item.masuk > 0 ? '+' + item.masuk.toLocaleString('id-ID') : ''}</td>
+                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-bold text-rose-500 text-right">${item.keluar > 0 ? '-' + item.keluar.toLocaleString('id-ID') : ''}</td>
+                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-black text-blue-600 text-right bg-slate-50/50">${(item.sisa || 0).toLocaleString('id-ID')}</td>
                         </tr>
                     `).join('');
 
                 mainContent.innerHTML = `
-                    <div class="space-y-2 pt-1 pb-12">
-                        <!-- HEADER RINGKASAN SALDO (LEBIH RINGKAS) -->
-                        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl p-3 text-white shadow-sm flex items-center justify-between">
-                            <div>
-                                <span class="text-[8.5px] font-bold uppercase tracking-wider text-emerald-100 block">Sisa Saldo Tabungan</span>
-                                <div class="text-lg font-black leading-none mt-0.5">Rp ${sisaSaldoFormat}</div>
+                    <div class="space-y-3 pt-1 pb-12">
+                        
+                        <!-- CARD RINGKASAN SALDO & TABUNGAN -->
+                        <div class="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-2xl p-3.5 text-white shadow-lg space-y-2.5">
+                            
+                            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                                <div>
+                                    <p class="text-[9px] text-emerald-200 uppercase tracking-wider font-semibold">Total</p>
+                                    <h3 class="text-lg font-black text-white">Rp ${(Number(dbAdminState.saldoOperasional||0) + Number(dbAdminState.tabunganUtama||0)).toLocaleString('id-ID')}</h3>
+                                </div>
+                                <button onclick="bukaModalTabungan()" class="bg-white text-emerald-800 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-md hover:bg-emerald-50 active:scale-95 transition-all">
+                                    <i class="fa-solid fa-plus mr-1"></i>Catat Transaksi
+                                </button>
                             </div>
-                            <button onclick="bukaModalTabungan()" class="bg-white text-emerald-700 font-extrabold text-[9.5px] px-3 py-1.5 rounded-lg shadow-sm hover:bg-emerald-50 active:scale-95 transition-all">
-                                <i class="fa-solid fa-plus mr-1"></i>Catat
-                            </button>
+
+                            <!-- TOMBOL TOGGLE SWITCH (DOMPET VS BANKER) -->
+                            <div class="grid grid-cols-2 gap-2">
+                                <div onclick="switchSubTabKeuangan('dompet')" class="cursor-pointer p-2 rounded-xl border transition-all ${window.activeTabKeuangan === 'dompet' ? 'bg-white/25 border-white text-white font-bold shadow-sm' : 'bg-white/5 border-white/10 text-emerald-200 opacity-80'}">
+                                    <div class="flex items-center space-x-1 mb-0.5">
+                                        <i class="fa-solid fa-wallet text-[10px]"></i>
+                                        <span class="text-[9px] uppercase">Saldo </span>
+                                    </div>
+                                    <p class="text-xs font-black">Rp ${Number(dbAdminState.saldoOperasional || 0).toLocaleString('id-ID')}</p>
+                                </div>
+
+                                <div onclick="switchSubTabKeuangan('banker')" class="cursor-pointer p-2 rounded-xl border transition-all ${window.activeTabKeuangan === 'banker' ? 'bg-white/25 border-white text-white font-bold shadow-sm' : 'bg-white/5 border-white/10 text-teal-200 opacity-80'}">
+                                    <div class="flex items-center space-x-1 mb-0.5">
+                                        <i class="fa-solid fa-piggy-bank text-[10px]"></i>
+                                        <span class="text-[9px] uppercase">Tabungan</span>
+                                    </div>
+                                    <p class="text-xs font-black">Rp ${Number(dbAdminState.tabunganUtama || 0).toLocaleString('id-ID')}</p>
+                                </div>
+                            </div>
+
+                            <div class="pt-1.5 border-t border-white/10 flex justify-between items-center text-[10px] text-emerald-200">
+                                <span><i class="fa-solid fa-circle-check mr-1 text-emerald-400"></i> Total Masuk / Bulan ini :</span>
+                                <span class="font-bold text-white bg-white/20 px-2 py-0.5 rounded-md">${countWargaLunas} Orang (Rp ${totalIuranMasuk.toLocaleString('id-ID')})</span>
+                            </div>
+
                         </div>
 
-                        <!-- KOTAK TABEL MODEL GOOGLE SHEETS (BORDER KOTAK-KOTAK EKSPLISIT) -->
+                        <!-- JUDUL RIWAYAT TABEL TERPILIH -->
+                        <div class="flex justify-between items-center px-1">
+                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                Riwayat: <span class="text-emerald-600">${window.activeTabKeuangan === 'tabungan' ? 'Tabungan ' : 'Dompet Operasional'}</span>
+                            </span>
+                        </div>
+
+                        <!-- KOTAK TABEL RIWAYAT MODEL GOOGLE SHEETS -->
                         <div class="bg-white rounded-xl border border-slate-300 shadow-sm overflow-hidden">
-                            <div class="max-h-[calc(100vh-210px)] overflow-y-auto custom-scrollbar">
+                            <div class="max-h-[calc(100vh-280px)] overflow-y-auto custom-scrollbar">
                                 <table class="w-full text-left border-collapse border border-slate-200">
                                     <thead class="bg-slate-100 sticky top-0 z-10">
                                         <tr class="text-[8.5px] font-extrabold text-slate-700 uppercase">
@@ -584,15 +653,16 @@
                                             <th class="py-1 px-1.5 border border-slate-300 bg-slate-200/60">Keterangan</th>
                                             <th class="py-1 px-1.5 border border-slate-300 text-right text-emerald-700 bg-slate-200/60">Masuk</th>
                                             <th class="py-1 px-1.5 border border-slate-300 text-right text-rose-700 bg-slate-200/60">Keluar</th>
-                                            <th class="py-1 px-1.5 border border-slate-300 text-right text-blue-700 bg-slate-200/60">Saldo</th>
+                                            <th class="py-1 px-1.5 border border-slate-300 text-right text-blue-700 bg-slate-200/60">Sisa</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        ${rowsTabunganHTML}
+                                        ${rowsHTML}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
+
                     </div>
                 `;
             }
@@ -760,17 +830,27 @@
             selectedJenisTrans = jenis;
             const btnMasuk = document.getElementById('btn-jns-masuk');
             const btnKeluar = document.getElementById('btn-jns-keluar');
+            const btnMutasi = document.getElementById('btn-jns-mutasi');
+            const inputKet = document.getElementById('input-trans-ket');
+
+            btnMasuk.className = "py-2.5 rounded-xl font-bold border border-slate-200 text-slate-500 text-[11px] transition-all";
+            btnKeluar.className = "py-2.5 rounded-xl font-bold border border-slate-200 text-slate-500 text-[11px] transition-all";
+            btnMutasi.className = "py-2.5 rounded-xl font-bold border border-slate-200 text-slate-500 text-[11px] transition-all";
 
             if (jenis === 'MASUK') {
-                btnMasuk.className = "py-3 rounded-2xl font-bold border border-emerald-500 bg-emerald-50 text-emerald-600 shadow-sm transition-all";
-                btnKeluar.className = "py-3 rounded-2xl font-bold border border-slate-200 text-slate-500 transition-all";
-            } else {
-                btnKeluar.className = "py-3 rounded-2xl font-bold border border-red-500 bg-red-50 text-red-600 shadow-sm transition-all";
-                btnMasuk.className = "py-3 rounded-2xl font-bold border border-slate-200 text-slate-500 transition-all";
+                btnMasuk.className = "py-2.5 rounded-xl font-bold border border-emerald-500 bg-emerald-50 text-emerald-600 text-[11px] transition-all";
+                inputKet.placeholder = "Contoh: Pemasukan Operasional / Kas";
+            } else if (jenis === 'KELUAR') {
+                btnKeluar.className = "py-2.5 rounded-xl font-bold border border-rose-500 bg-rose-50 text-rose-600 text-[11px] transition-all";
+                inputKet.placeholder = "Contoh: Biaya Operasional / Beli Alat";
+            } else if (jenis === 'MUTASI') {
+                btnMutasi.className = "py-2.5 rounded-xl font-bold border border-sky-500 bg-sky-50 text-sky-600 text-[11px] transition-all";
+                inputKet.placeholder = "Contoh: Transfer Sisa Saldo ke Banker";
             }
         }
 
         function simpanTransaksiTabungan() {
+            const akun = document.getElementById('input-trans-akun').value;
             const ket = document.getElementById('input-trans-ket').value.trim();
             const nominal = Number(document.getElementById('input-trans-nominal').value) || 0;
 
@@ -780,6 +860,7 @@
                 method: 'POST',
                 body: JSON.stringify({
                     action: "TAMBAH_TRANSAKSI_TABUNGAN",
+                    akun: akun,
                     keterangan: ket,
                     jenis: selectedJenisTrans,
                     nominal: nominal
