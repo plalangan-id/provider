@@ -165,8 +165,8 @@
                 <div>
                     <label class="block font-semibold text-slate-500 mb-1.5">Sumber / Sasaran Akun</label>
                     <select id="input-trans-akun" class="w-full border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-emerald-500 font-bold text-slate-800 bg-slate-50">
-                        <option value="DOMPET">Dompet </option>
-                        <option value="BANKER">Tabungan</option>
+                        <option value="DOMPET">Dompet Operasional</option>
+                        <option value="TABUNGAN">Tabungan Utama</option>
                     </select>
                 </div>
                 <div>
@@ -174,7 +174,7 @@
                     <div class="grid grid-cols-3 gap-1.5">
                         <button type="button" id="btn-jns-masuk" onclick="pilihJenisTrans('MASUK')" class="py-2.5 rounded-xl font-bold border border-emerald-500 bg-emerald-50 text-emerald-600 text-[11px] transition-all">Pemasukan (+)</button>
                         <button type="button" id="btn-jns-keluar" onclick="pilihJenisTrans('KELUAR')" class="py-2.5 rounded-xl font-bold border border-slate-200 text-slate-500 text-[11px] transition-all">Pengeluaran (-)</button>
-                        <button type="button" id="btn-jns-mutasi" onclick="pilihJenisTrans('MUTASI')" class="py-2.5 rounded-xl font-bold border border-slate-200 text-slate-500 text-[11px] transition-all">Tranfer Tabungan (⇄)</button>
+                        <button type="button" id="btn-jns-mutasi" onclick="pilihJenisTrans('MUTASI')" class="py-2.5 rounded-xl font-bold border border-slate-200 text-slate-500 text-[11px] transition-all">TF Tabungan (⇄)</button>
                     </div>
                 </div>
                 <div>
@@ -228,7 +228,7 @@
 
     <!-- LOGIKA JAVASCRIPT ADMIN -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyT1Yn9qXgfUNXs3bhnMM_twYfjImDyQURIprw_I2_LUxkMWvK_hZi8hbaUPKAEn-yv/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyTKRSyLBOAYRidGJlbgcgV_BA1BWohxw_0RCT-lo3VDWnlBNfZopdevqps_kvaLlhw/exec";
         const PIN_ADMIN_RAHASIA = "25121987";
 
         let selectedJenisTrans = "MASUK";
@@ -562,7 +562,7 @@
                 `;
             } 
             // ====================================================================
-            // [TAB TABUNGAN ADMIN] DUAL SUB-TAB TOGGLE (DOMPET VS BANKER)
+            // [TAB TABUNGAN ADMIN] DUAL SUB-TAB TOGGLE (DOMPET VS TABUNGAN)
             // ====================================================================
             else if (tabName === 'tabungan') {
                 if (!window.activeTabKeuangan) window.activeTabKeuangan = 'dompet';
@@ -576,10 +576,10 @@
                     }
                 });
 
-                // Filter data transaksi sesuai tab aktif
+                // Filter data transaksi sesuai tab aktif (DOMPET / TABUNGAN)
                 let dataTabelAktif = (dbAdminState.dataTabungan || []).filter(item => {
                     const akun = (item.akun || 'DOMPET').toUpperCase();
-                    return window.activeTabKeuangan === 'banker' ? akun === 'BANKER' : akun === 'DOMPET';
+                    return window.activeTabKeuangan === 'tabungan' ? akun === 'TABUNGAN' : akun === 'DOMPET';
                 });
 
                 let rowsHTML = (dataTabelAktif.length === 0)
@@ -602,7 +602,7 @@
                             
                             <div class="flex justify-between items-center border-b border-white/10 pb-2">
                                 <div>
-                                    <p class="text-[9px] text-emerald-200 uppercase tracking-wider font-semibold">Total</p>
+                                    <p class="text-[9px] text-emerald-200 uppercase tracking-wider font-semibold">Total Seluruh Aset</p>
                                     <h3 class="text-lg font-black text-white">Rp ${(Number(dbAdminState.saldoOperasional||0) + Number(dbAdminState.tabunganUtama||0)).toLocaleString('id-ID')}</h3>
                                 </div>
                                 <button onclick="bukaModalTabungan()" class="bg-white text-emerald-800 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-md hover:bg-emerald-50 active:scale-95 transition-all">
@@ -610,27 +610,27 @@
                                 </button>
                             </div>
 
-                            <!-- TOMBOL TOGGLE SWITCH (DOMPET VS BANKER) -->
+                            <!-- TOMBOL TOGGLE SWITCH (DOMPET VS TABUNGAN) -->
                             <div class="grid grid-cols-2 gap-2">
                                 <div onclick="switchSubTabKeuangan('dompet')" class="cursor-pointer p-2 rounded-xl border transition-all ${window.activeTabKeuangan === 'dompet' ? 'bg-white/25 border-white text-white font-bold shadow-sm' : 'bg-white/5 border-white/10 text-emerald-200 opacity-80'}">
                                     <div class="flex items-center space-x-1 mb-0.5">
                                         <i class="fa-solid fa-wallet text-[10px]"></i>
-                                        <span class="text-[9px] uppercase">Saldo </span>
+                                        <span class="text-[9px] uppercase">Saldo (Dompet)</span>
                                     </div>
                                     <p class="text-xs font-black">Rp ${Number(dbAdminState.saldoOperasional || 0).toLocaleString('id-ID')}</p>
                                 </div>
 
-                                <div onclick="switchSubTabKeuangan('banker')" class="cursor-pointer p-2 rounded-xl border transition-all ${window.activeTabKeuangan === 'banker' ? 'bg-white/25 border-white text-white font-bold shadow-sm' : 'bg-white/5 border-white/10 text-teal-200 opacity-80'}">
+                                <div onclick="switchSubTabKeuangan('tabungan')" class="cursor-pointer p-2 rounded-xl border transition-all ${window.activeTabKeuangan === 'tabungan' ? 'bg-white/25 border-white text-white font-bold shadow-sm' : 'bg-white/5 border-white/10 text-teal-200 opacity-80'}">
                                     <div class="flex items-center space-x-1 mb-0.5">
                                         <i class="fa-solid fa-piggy-bank text-[10px]"></i>
-                                        <span class="text-[9px] uppercase">Tabungan</span>
+                                        <span class="text-[9px] uppercase">Tabungan Utama</span>
                                     </div>
                                     <p class="text-xs font-black">Rp ${Number(dbAdminState.tabunganUtama || 0).toLocaleString('id-ID')}</p>
                                 </div>
                             </div>
 
                             <div class="pt-1.5 border-t border-white/10 flex justify-between items-center text-[10px] text-emerald-200">
-                                <span><i class="fa-solid fa-circle-check mr-1 text-emerald-400"></i> Total Masuk / Bulan ini :</span>
+                                <span><i class="fa-solid fa-circle-check mr-1 text-emerald-400"></i> Total Masuk Warga Lunas:</span>
                                 <span class="font-bold text-white bg-white/20 px-2 py-0.5 rounded-md">${countWargaLunas} Orang (Rp ${totalIuranMasuk.toLocaleString('id-ID')})</span>
                             </div>
 
@@ -639,7 +639,7 @@
                         <!-- JUDUL RIWAYAT TABEL TERPILIH -->
                         <div class="flex justify-between items-center px-1">
                             <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                Riwayat: <span class="text-emerald-600">${window.activeTabKeuangan === 'tabungan' ? 'Tabungan ' : 'Dompet Operasional'}</span>
+                                Riwayat: <span class="text-emerald-600">${window.activeTabKeuangan === 'tabungan' ? 'Tabungan Utama' : 'Dompet Operasional'}</span>
                             </span>
                         </div>
 
@@ -845,7 +845,7 @@
                 inputKet.placeholder = "Contoh: Biaya Operasional / Beli Alat";
             } else if (jenis === 'MUTASI') {
                 btnMutasi.className = "py-2.5 rounded-xl font-bold border border-sky-500 bg-sky-50 text-sky-600 text-[11px] transition-all";
-                inputKet.placeholder = "Contoh: Transfer Sisa Saldo ke Banker";
+                inputKet.placeholder = "Contoh: Transfer Sisa Saldo ke Tabungan Utama";
             }
         }
 
