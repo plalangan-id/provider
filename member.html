@@ -280,7 +280,7 @@
             // ====================================================================
             if (tabName === 'home') {
                 mainContent.innerHTML = `
-                    <section class="${activeUserData.isLunas ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 shadow-emerald-100' : 'bg-gradient-to-r from-blue-600 to-blue-500 shadow-blue-100'} rounded-3xl p-6 text-white shadow-md mt-2 relative overflow-hidden">
+                    <section class="${activeUserData.isLunas ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 shadow-emerald-100' : 'bg-gradient-to-r from-rose-600 to-red-500 shadow-rose-100'} rounded-3xl p-6 text-white shadow-md mt-2 relative overflow-hidden">
                         <div class="absolute -right-10 -top-10 w-32 h-32 bg-white opacity-10 rounded-full"></div>
                         <div class="absolute -right-4 -bottom-10 w-24 h-24 bg-white opacity-10 rounded-full"></div>
                         
@@ -367,71 +367,234 @@
                 `;
             } 
             // ====================================================================
-            // [SEKAT TAB 2] TAB TAGIHAN WIFI
+            // [SEKAT TAB 2] TAB TAGIHAN WIFI (CARD GRADASI DINAMIS & HIDUP)
             // ====================================================================
             else if (tabName === 'tagihan') {
-                const badgeWarna = activeUserData.isLunas ? "bg-emerald-50 text-emerald-500" : "bg-red-50 text-red-500";
-                const nominalWarna = activeUserData.isLunas ? "text-emerald-500" : "text-red-500";
+                const isLunas = activeUserData.isLunas;
+                
+                // Variabel Tema Gradasi Dinamis
+                const cardGradien = isLunas 
+                    ? "from-emerald-600 via-teal-600 to-emerald-700 shadow-emerald-200" 
+                    : "from-rose-600 via-red-600 to-amber-600 shadow-rose-200";
+
+                const badgeStatusBg = isLunas 
+                    ? "bg-emerald-300/30 text-emerald-100 border-emerald-300/40" 
+                    : "bg-white/20 text-white border-white/30";
+
+                const iconStatus = isLunas ? "fa-circle-check text-emerald-300" : "fa-clock text-amber-300";
+                const labelStatus = isLunas ? "LUNAS / AKTIF" : "BELUM DIBAYAR";
+
                 mainContent.innerHTML = `
-                    <div class="space-y-4 pt-2">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-1 h-5 bg-blue-600 rounded-full"></div>
-                            <h2 class="text-sm font-bold text-slate-800">Rincian Tagihan Internet</h2>
+                    <div class="space-y-4 pt-1 pb-8">
+                        
+                        <!-- JUDUL SEKSI -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1.5">
+                                <div class="w-1 h-3.5 bg-blue-600 rounded-full"></div>
+                                <h2 class="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Tagihan Internet Saya</h2>
+                            </div>
+                            <span class="text-[9px] text-slate-400 font-semibold">${activeUserData.bulanIni}</span>
                         </div>
-                        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
-                            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+
+                        <!-- KARTU TAGIHAN GRADASI HIDUP -->
+                        <div class="bg-gradient-to-br ${cardGradien} rounded-3xl p-5 text-white shadow-lg relative overflow-hidden space-y-4 transition-all duration-300">
+                            <!-- Hiasan Lingkaran Glassmorphism -->
+                            <div class="absolute -right-8 -top-8 w-28 h-28 bg-white/10 rounded-full blur-sm"></div>
+                            <div class="absolute -left-6 -bottom-6 w-20 h-20 bg-white/10 rounded-full"></div>
+
+                            <!-- HEADER KARTU -->
+                            <div class="flex justify-between items-start relative z-10 border-b border-white/15 pb-3">
                                 <div>
-                                    <span class="text-[10px] text-slate-400 font-medium uppercase">Periode</span>
-                                    <p class="text-xs font-bold text-slate-700 mt-0.5">${activeUserData.bulanIni}</p>
+                                    <span class="text-[10px] text-white/80 font-medium uppercase tracking-wider block">ID Pelanggan</span>
+                                    <p class="text-sm font-mono font-extrabold text-white mt-0.5">${activeUserData.idUser}</p>
                                 </div>
-                                <span class="${badgeWarna} font-bold text-[9px] px-3 py-1 rounded-full uppercase tracking-wider">
-                                    ${activeUserData.statusTeks}
+                                <span class="text-[9px] font-extrabold px-3 py-1 rounded-full border ${badgeStatusBg} backdrop-blur-md flex items-center space-x-1">
+                                    <i class="fa-solid ${iconStatus} text-[10px]"></i>
+                                    <span>${labelStatus}</span>
                                 </span>
                             </div>
-                            <div class="space-y-2">
-                                <div class="flex justify-between items-center text-xs">
-                                    <span class="text-slate-400">Harga Paket</span>
-                                    <span class="font-semibold text-slate-700">Rp ${activeUserData.formattedBasePaket}</span>
+
+                            <!-- DETAIL ANGKATAN & NOMINAL -->
+                            <div class="relative z-10 space-y-2">
+                                <div class="flex justify-between items-center text-xs text-white/90">
+                                    <span class="font-medium text-white/80">Paket Langganan</span>
+                                    <span class="font-bold text-white">Rp ${activeUserData.formattedBasePaket} / bln</span>
                                 </div>
-                                <div class="border-t border-dashed border-slate-200 my-2"></div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xs font-bold text-slate-800">Total Pembayaran</span>
-                                    <span class="text-lg font-black ${nominalWarna}">Rp ${activeUserData.nominalAsli}</span>
+
+                                <div class="border-t border-dashed border-white/20 my-2"></div>
+
+                                <div class="flex justify-between items-end">
+                                    <div>
+                                        <span class="text-[10px] text-white/80 font-medium block">Total Tagihan (${activeUserData.bulanIni})</span>
+                                        <div class="text-2xl font-black text-white tracking-tight mt-0.5">
+                                            Rp ${isLunas ? '0' : activeUserData.nominalAsli}
+                                        </div>
+                                    </div>
+                                    ${isLunas ? `<span class="text-[10px] font-bold text-emerald-200 bg-white/10 px-2.5 py-1 rounded-xl backdrop-blur-sm">Layanan Lancar</span>` : `<span class="text-[10px] font-bold text-amber-200 bg-white/10 px-2.5 py-1 rounded-xl backdrop-blur-sm">Jatuh Tempo tgl 20</span>`}
                                 </div>
                             </div>
+
+                            <!-- TOMBOL AKSI PINTAR BERDASARKAN STATUS -->
+                            <div class="pt-2 relative z-10">
+                                ${isLunas ? `
+                                    <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2.5 text-center border border-white/20 flex items-center justify-center space-x-2 text-xs font-bold text-white">
+                                        <i class="fa-solid fa-shield-halved text-emerald-300"></i>
+                                        <span>Terima Kasih, Tagihan Sudah Dilunasi</span>
+                                    </div>
+                                ` : `
+                                    <a href="https://wa.me/6281936999919?text=Halo%20Admin%20PLALANGAN.NET,%20saya%20${encodeURIComponent(activeUserData.nama)}\%20(ID:\%20${activeUserData.idUser})%20konfirmasi%20pembayaran%20Wifi%20sebesar%20Rp%20${activeUserData.nominalAsli}\%20periode\%20${encodeURIComponent(activeUserData.bulanIni)}." target="_blank" class="w-full bg-white text-rose-600 hover:bg-slate-50 active:scale-95 font-black text-xs py-3 px-4 rounded-2xl shadow-md transition-all flex items-center justify-center space-x-2">
+                                        <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
+                                        <span>KONFIRMASI BAYAR VIA WA</span>
+                                    </a>
+                                `}
+                            </div>
                         </div>
+
+                        <!-- CATATAN PETUNJUK PEMBAYARAN -->
+                        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100/80 space-y-2 text-xs">
+                            <div class="flex items-center space-x-2 text-slate-800 font-bold">
+                                <i class="fa-solid fa-circle-info text-blue-500"></i>
+                                <span>Informasi Pembayaran</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">
+                                Pembayaran dapat ditransfer ke E-Wallet (DANA/OVO/ShopeePay) di nomor <strong class="text-slate-800 font-mono">081936999919</strong> atau bayar tunai langsung ke Admin.
+                            </p>
+                        </div>
+
                     </div>
                 `;
             }
             // ====================================================================
-            // [SEKAT TAB 3] TAB VOUCHER (LENGKAP DENGAN TOMBOL SALIN)
+            // [SEKAT TAB 3] TAB VOUCHER (GRID 2x2 COLORFUL GRADIENT & COMPACT)
             // ====================================================================
             else if (tabName === 'voucher') {
                 let voucherRowsHTML = (!activeUserData.vouchers || activeUserData.vouchers.length === 0) 
-                    ? `<div class="py-8 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-100 shadow-sm">Tidak ada voucher aktif.</div>`
+                    ? `<div class="py-4 text-center text-[11px] text-slate-400 bg-white rounded-xl border border-slate-100 shadow-sm">Belum ada kode voucher aktif.</div>`
                     : activeUserData.vouchers.map((v) => `
-                        <div class="p-3.5 flex justify-between items-center text-xs">
+                        <div class="p-2.5 flex justify-between items-center text-xs bg-white rounded-xl border border-slate-100 shadow-sm">
                             <div class="space-y-0.5">
-                                <span class="font-mono font-black text-sm text-blue-400 tracking-wider block">${v.kode}</span>
-                                <span class="text-[10px] text-slate-55
-                                00 font-medium">Status: ${v.status || 'Aktif'}</span>
+                                <span class="font-mono font-black text-xs text-blue-600 tracking-wider block">${v.kode}</span>
+                                <span class="text-[9px] text-slate-400 font-medium">Status: <strong class="text-emerald-600">${v.status || 'Aktif'}</strong></span>
                             </div>
-                            <button onclick="salinVoucher('${v.kode}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-[10px] px-3 py-1.5 rounded-xl border border-blue-200 transition-colors flex items-center space-x-1 active:scale-95">
-                                <i class="fa-regular fa-copy"></i>
+                            <button onclick="salinVoucher('${v.kode}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-[9px] px-2.5 py-1 rounded-lg border border-blue-200 transition-all flex items-center space-x-1 active:scale-95">
+                                <i class="fa-regular fa-copy text-[9px]"></i>
                                 <span>Salin</span>
                             </button>
                         </div>
                     `).join('');
 
                 mainContent.innerHTML = `
-                    <div class="space-y-3 pt-2">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-1 h-5 bg-cyan-500 rounded-full"></div>
-                            <h2 class="text-sm font-bold text-slate-800">Daftar Kode Voucher Hotspot</h2>
+                    <div class="space-y-3 pt-1 pb-6">
+                        
+                        <!-- JUDUL SEKSI -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1.5">
+                                <div class="w-1 h-3.5 bg-cyan-500 rounded-full"></div>
+                                <h2 class="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Paket Voucher Hotspot</h2>
+                            </div>
+                            <span class="text-[8px] bg-cyan-50 text-cyan-600 font-extrabold px-1.5 py-0.5 rounded border border-cyan-200">SUPER HEMAT</span>
                         </div>
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 divide-y divide-slate-100 overflow-hidden">
-                            ${voucherRowsHTML}
+
+                        <!-- GRID 2x2 COLORFUL GRADIENT -->
+                        <div class="grid grid-cols-2 gap-2">
+                            
+                            <!-- PAKET 1: 1 HARI (GRADASI BIRU OCEAN) -->
+                            <div class="bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl p-2.5 shadow-sm text-white flex flex-col justify-between relative overflow-hidden">
+                                <div>
+                                    <div class="flex items-center justify-between mb-0.5">
+                                        <div class="flex items-center space-x-1">
+                                            <i class="fa-solid fa-clock text-cyan-200 text-xs"></i>
+                                            <h3 class="text-xs font-extrabold text-white">1 Hari</h3>
+                                        </div>
+                                        <span class="text-[7.5px] font-black bg-amber-300 text-slate-900 px-1 py-0.2 rounded uppercase">Promo</span>
+                                    </div>
+                                    <p class="text-[8.5px] text-amber-300 font-bold leading-tight mt-0.5">Beli 5 Gratis 2!</p>
+                                </div>
+                                <div class="mt-2 pt-1.5 border-t border-white/20 flex items-center justify-between">
+                                    <span class="text-xs font-black text-white">Rp 1.000</span>
+                                    <a href="https://wa.me/6281936999919?text=Halo%20Admin%20PLALANGAN.NET,%20saya%20${encodeURIComponent(activeUserData.nama)}%20(ID:%20${activeUserData.idUser})%20ingin%20beli%20Voucher%201%20Hari%20(Rp%201.000)." target="_blank" class="bg-white text-blue-600 hover:bg-blue-50 active:scale-95 font-extrabold text-[9px] px-2.5 py-1 rounded-lg shadow-sm transition-all flex items-center space-x-1">
+                                        <i class="fa-brands fa-whatsapp text-[10px]"></i>
+                                        <span>Beli</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- PAKET 2: 10 HARI (GRADASI HIJAU EMERALD) -->
+                            <div class="bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl p-2.5 shadow-sm text-white flex flex-col justify-between relative overflow-hidden">
+                                <div>
+                                    <div class="flex items-center justify-between mb-0.5">
+                                        <div class="flex items-center space-x-1">
+                                            <i class="fa-solid fa-bolt text-emerald-200 text-xs"></i>
+                                            <h3 class="text-xs font-extrabold text-white">10 Hari</h3>
+                                        </div>
+                                        <span class="text-[7.5px] font-black bg-white/20 text-white px-1 py-0.2 rounded uppercase backdrop-blur-sm">BARU</span>
+                                    </div>
+                                    <p class="text-[8.5px] text-emerald-100 font-medium leading-tight mt-0.5">Masa aktif 10 hari</p>
+                                </div>
+                                <div class="mt-2 pt-1.5 border-t border-white/20 flex items-center justify-between">
+                                    <span class="text-xs font-black text-white">Rp 5.000</span>
+                                    <a href="https://wa.me/6281936999919?text=Halo%20Admin%20PLALANGAN.NET,%20saya%20${encodeURIComponent(activeUserData.nama)}%20(ID:%20${activeUserData.idUser})%20ingin%20beli%20Voucher%2010%20Hari%20(Rp%205.000)." target="_blank" class="bg-white text-emerald-700 hover:bg-emerald-50 active:scale-95 font-extrabold text-[9px] px-2.5 py-1 rounded-lg shadow-sm transition-all flex items-center space-x-1">
+                                        <i class="fa-brands fa-whatsapp text-[10px]"></i>
+                                        <span>Beli</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- PAKET 3: 30 HARI (GRADASI UNGU VIOLET) -->
+                            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-2.5 shadow-sm text-white flex flex-col justify-between relative overflow-hidden">
+                                <div>
+                                    <div class="flex items-center justify-between mb-0.5">
+                                        <div class="flex items-center space-x-1">
+                                            <i class="fa-solid fa-calendar-days text-purple-200 text-xs"></i>
+                                            <h3 class="text-xs font-extrabold text-white">30 Hari</h3>
+                                        </div>
+                                        <span class="text-[7.5px] font-black bg-amber-300 text-slate-900 px-1 py-0.2 rounded uppercase">Bulanan</span>
+                                    </div>
+                                    <p class="text-[8.5px] text-purple-100 font-medium leading-tight mt-0.5">Akses penuh 1 bulan</p>
+                                </div>
+                                <div class="mt-2 pt-1.5 border-t border-white/20 flex items-center justify-between">
+                                    <span class="text-xs font-black text-white">Rp 15.000</span>
+                                    <a href="https://wa.me/6281936999919?text=Halo%20Admin%20PLALANGAN.NET,%20saya%20${encodeURIComponent(activeUserData.nama)}%20(ID:%20${activeUserData.idUser})%20ingin%20beli%20Voucher%2030%20Hari%20(Rp%2015.000)." target="_blank" class="bg-white text-purple-700 hover:bg-purple-50 active:scale-95 font-extrabold text-[9px] px-2.5 py-1 rounded-lg shadow-sm transition-all flex items-center space-x-1">
+                                        <i class="fa-brands fa-whatsapp text-[10px]"></i>
+                                        <span>Beli</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- PAKET 4: SABTU MINGGU GRATIS (GRADASI MERAH ROSE) -->
+                            <div class="bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl p-2.5 shadow-sm text-white flex flex-col justify-between relative overflow-hidden">
+                                <div>
+                                    <div class="flex items-center justify-between mb-0.5">
+                                        <div class="flex items-center space-x-1">
+                                            <i class="fa-solid fa-gift text-amber-300 text-xs"></i>
+                                            <h3 class="text-xs font-extrabold text-white">Sabtu-Minggu</h3>
+                                        </div>
+                                        <span class="text-[7.5px] font-black bg-amber-300 text-slate-900 px-1 py-0.2 rounded uppercase">FREE</span>
+                                    </div>
+                                    <p class="text-[8.5px] text-rose-100 font-mono mt-0.5">Kode: <strong class="bg-white/20 px-1 rounded text-white tracking-wider">666999</strong></p>
+                                </div>
+                                <div class="mt-2 pt-1.5 border-t border-white/20 flex items-center justify-between">
+                                    <span class="text-xs font-black text-amber-300">FREE</span>
+                                    <button onclick="salinVoucher('666999')" class="bg-white text-rose-600 hover:bg-rose-50 active:scale-95 font-extrabold text-[9px] px-2 py-1 rounded-lg shadow-sm transition-all flex items-center space-x-1">
+                                        <i class="fa-regular fa-copy text-[9px]"></i>
+                                        <span>Salin</span>
+                                    </button>
+                                </div>
+                            </div>
+
                         </div>
+
+                        <!-- DAFTAR KODE VOUCHER TERBELI USER -->
+                        <div class="pt-1 space-y-1.5">
+                            <div class="flex items-center space-x-1.5">
+                                <div class="w-1 h-3.5 bg-blue-600 rounded-full"></div>
+                                <h2 class="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Voucher Milik Saya</h2>
+                            </div>
+                            <div class="space-y-1.5">
+                                ${voucherRowsHTML}
+                            </div>
+                        </div>
+
                     </div>
                 `;
             }
