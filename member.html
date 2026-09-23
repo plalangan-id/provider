@@ -599,53 +599,68 @@
                 `;
             }
             // ====================================================================
-            // [SEKAT TAB 4] TAB IURAN KAMPUNG (IKON & TEKS DINAMIS SESUAI STATUS)
+            // [SEKAT TAB 4] TAB IURAN KAMPUNG (GRID 2 KOLOM PASTEL COMPACT)
             // ====================================================================
             else if (tabName === 'paket') {
                 let listIuranHTML = "";
                 
                 if (!activeUserData.iuran || activeUserData.iuran.length === 0) {
-                    listIuranHTML = `<p class="text-xs text-slate-400 text-center py-8 bg-white rounded-2xl border border-slate-100 shadow-sm">Belum ada data catatan iuran kampung.</p>`;
+                    listIuranHTML = `<div class="col-span-2 p-6 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-100 shadow-sm">Belum ada data catatan iuran kampung.</div>`;
                 } else {
                     listIuranHTML = activeUserData.iuran.map(item => {
                         const statusLunas = (item.statusIuran || item.status || '').toLowerCase() === 'lunas';
                         
-                        // Dinamisasi Warna Ikon & Status berdasarkan Pelunasan
-                        const classIcon = statusLunas ? 'icon-3d-emerald' : 'icon-3d-rose';
-                        const bgStatus = statusLunas ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-rose-50 text-rose-500 border-rose-200';
-                        const teksStatus = statusLunas ? 'LUNAS' : 'BELUM BAYAR';
+                        // Tema Warna Pastel Soft & Compact Grid
+                        const cardBg = statusLunas 
+                            ? "bg-emerald-50/80 border-emerald-200/80 text-emerald-950" 
+                            : "bg-rose-50/80 border-rose-200/80 text-rose-950";
+                        
+                        const iconBg = statusLunas ? "bg-emerald-500 text-white" : "bg-rose-500 text-white";
+                        const badgeBg = statusLunas ? "bg-emerald-600 text-white" : "bg-rose-600 text-white";
+                        const iconStatus = statusLunas ? "fa-circle-check" : "fa-clock";
+                        const teksStatus = statusLunas ? "LUNAS" : "BELUM";
                         const bulanFormat = item.periodeBulan || item.bulan || activeUserData.bulanIni;
 
                         return `
-                            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100/80 flex justify-between items-center space-x-3">
-                                <div class="flex items-center space-x-3 min-w-0">
-                                    <!-- IKON 3D (HIJAU JIKA LUNAS, MERAH JIKA BELUM BAYAR) -->
-                                    <div class="w-10 h-10 ${classIcon} rounded-xl flex items-center justify-center shrink-0">
-                                        <i class="fa-solid fa-hand-holding-dollar text-base drop-shadow-md"></i>
+                            <!-- KARTU IURAN GRID COMPACT -->
+                            <div class="${cardBg} rounded-2xl p-2.5 border flex flex-col justify-between space-y-2 transition-all shadow-2xs">
+                                <div class="flex items-start justify-between space-x-1.5">
+                                    <div class="w-7 h-7 ${iconBg} rounded-lg flex items-center justify-center shrink-0 shadow-xs">
+                                        <i class="fa-solid fa-hand-holding-dollar text-xs"></i>
                                     </div>
-                                    <div class="space-y-0.5 min-w-0">
-                                        <h4 class="text-xs font-bold text-slate-800 uppercase truncate">${item.jenisIuran || 'IURAN KAMPUNG'}</h4>
-                                        <p class="text-[10px] text-slate-400 font-medium">Bulan: ${bulanFormat}</p>
-                                        <p class="text-xs font-black text-slate-700 mt-0.5">Rp ${Number(item.nominal || 0).toLocaleString('id-ID')}</p>
-                                    </div>
+                                    <span class="text-[8px] font-black px-1.5 py-0.5 rounded ${badgeBg} shrink-0 uppercase tracking-wider flex items-center space-x-0.5">
+                                        <i class="fa-solid ${iconStatus} text-[7px]"></i>
+                                        <span>${teksStatus}</span>
+                                    </span>
                                 </div>
-                                <span class="text-[10px] font-black px-3 py-1.5 rounded-xl border ${bgStatus} shrink-0 uppercase tracking-wider">
-                                    ${teksStatus}
-                                </span>
+
+                                <div class="space-y-0.5 min-w-0">
+                                    <h4 class="text-[11px] font-extrabold uppercase leading-tight truncate">${item.jenisIuran || 'IURAN KAMPUNG'}</h4>
+                                    <p class="text-[9px] opacity-70 font-medium truncate">${bulanFormat}</p>
+                                    <p class="text-xs font-black mt-1">Rp ${Number(item.nominal || 0).toLocaleString('id-ID')}</p>
+                                </div>
                             </div>
                         `;
                     }).join('');
                 }
 
                 mainContent.innerHTML = `
-                    <div class="space-y-3 pt-2">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-1 h-5 bg-emerald-500 rounded-full"></div>
-                            <h2 class="text-sm font-bold text-slate-800">Status & Riwayat Iuran Kampung</h2>
+                    <div class="space-y-3 pt-1 pb-8">
+                        
+                        <!-- JUDUL SEKSI -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1.5">
+                                <div class="w-1 h-3.5 bg-emerald-500 rounded-full"></div>
+                                <h2 class="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Catatan Iuran Kampung</h2>
+                            </div>
+                            <span class="text-[9px] text-slate-400 font-semibold">${activeUserData.bulanIni}</span>
                         </div>
-                        <div class="space-y-2.5 max-h-[80vh] overflow-y-auto pr-1">
+
+                        <!-- DAFTAR KARTU IURAN MODE GRID 2 KOLOM -->
+                        <div class="grid grid-cols-2 gap-2 max-h-[80vh] overflow-y-auto pr-0.5 no-scrollbar">
                             ${listIuranHTML}
                         </div>
+
                     </div>
                 `;
             }
