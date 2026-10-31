@@ -562,11 +562,34 @@
                 `;
             } 
             // ====================================================================
-            // [TAB TABUNGAN ADMIN] DUAL SUB-TAB TOGGLE (DOMPET VS TABUNGAN)
+            // [TAB TABUNGAN ADMIN] PILIH BULAN RIWAYAT TRANSAKSI (DYNAMIC FILTER)
             // ====================================================================
             else if (tabName === 'tabungan') {
                 if (!window.activeTabKeuangan) window.activeTabKeuangan = 'dompet';
 
+                // State Filter Bulan (Default ke bulan & tahun saat ini jika belum dipilih)
+                const skrg = new Date();
+                if (!window.selectedBulanFilter) window.selectedBulanFilter = String(skrg.getMonth() + 1).padStart(2, '0');
+                if (!window.selectedTahunFilter) window.selectedTahunFilter = String(skrg.getFullYear());
+
+                const blnAktifNum = parseInt(window.selectedBulanFilter, 10);
+                const thnAktifNum = parseInt(window.selectedTahunFilter, 10);
+
+                // Parser Tanggal Fleksibel (Mendukung DD/MM/YYYY, DD.MM.YYYY, DD-MM-YYYY)
+                function parseBulanTahun(tglStr) {
+                    if (!tglStr) return { bulan: 0, tahun: 0 };
+                    const cleanStr = String(tglStr).replace(/[\.\-]/g, '/');
+                    const parts = cleanStr.split('/');
+                    if (parts.length >= 3) {
+                        return {
+                            bulan: parseInt(parts[1], 10) || 0,
+                            tahun: parseInt(parts[2], 10) || 0
+                        };
+                    }
+                    return { bulan: 0, tahun: 0 };
+                }
+
+                // 1. Hitung Pemasukan Iuran Bulan Ini
                 let totalIuranMasuk = 0;
                 let countWargaLunas = 0;
                 (dbAdminState.listPelanggan || []).forEach(p => {
@@ -576,21 +599,50 @@
                     }
                 });
 
-                // Filter data transaksi sesuai tab aktif (DOMPET / TABUNGAN)
-                let dataTabelAktif = (dbAdminState.dataTabungan || []).filter(item => {
+                // 2. Filter Transaksi Sesuai Sub-Tab Aktif (DOMPET / TABUNGAN)
+                let dataTabelSemua = (dbAdminState.dataTabungan || []).filter(item => {
                     const akun = (item.akun || 'DOMPET').toUpperCase();
                     return window.activeTabKeuangan === 'tabungan' ? akun === 'TABUNGAN' : akun === 'DOMPET';
                 });
 
-                let rowsHTML = (dataTabelAktif.length === 0)
-                    ? `<tr><td colspan="5" class="py-4 text-center text-slate-400 border border-slate-200">Belum ada transaksi di ${window.activeTabKeuangan.toUpperCase()}.</td></tr>`
-                    : dataTabelAktif.map(item => `
+                // 3. Hitung Pengeluaran Bersih Sesuai Bulan yang Dipilih
+                let pengeluaranBulanPilihan = dataTabelSemua
+                    .filter(item => {
+                        if (!item.tanggal || !item.keluar) return false;
+                        const tgl = parseBulanTahun(item.tanggal);
+                        return tgl.bulan === blnAktifNum && tgl.tahun === thnAktifNum;
+                    })
+                    .reduce((sum, item) => sum + (Number(item.keluar) || 0), 0);
+
+                // 4. Kalkulasi Nilai Saldo & Aset
+                let rawSaldo = Number(dbAdminState.saldoOperasional || 0);
+                let rawTabungan = Number(dbAdminState.tabunganUtama || 0);
+
+                let saldoOperasionalTampil = rawSaldo; 
+                if (totalIuranMasuk > 0 && blnAktifNum === (skrg.getMonth() + 1)) {
+                    saldoOperasionalTampil = totalIuranMasuk - pengeluaranBulanPilihan;
+                }
+
+                let totalSeluruhAset = saldoOperasionalTampil + rawTabungan;
+
+                // 5. Filter Data Tabel Riwayat Sesuai Bulan & Tahun yang Dipilih Admin
+                let dataTabelTampil = window.activeTabKeuangan === 'dompet'
+                    ? dataTabelSemua.filter(item => {
+                        if (!item.tanggal) return true;
+                        const tgl = parseBulanTahun(item.tanggal);
+                        return tgl.bulan === 0 || (tgl.bulan === blnAktifNum && tgl.tahun === thnAktifNum);
+                    })
+                    : dataTabelSemua;
+
+                let rowsHTML = (dataTabelTampil.length === 0)
+                    ? `<tr><td colspan="5" class="py-4 text-center text-slate-400 border border-slate-200">Tidak ada transaksi pada periode yang dipilih.</td></tr>`
+                    : dataTabelTampil.map(item => `
                         <tr class="hover:bg-amber-50/50 transition-colors">
                             <td class="py-1 px-1.5 border border-slate-200 font-mono text-[9px] text-slate-600 text-center">${item.tanggal}</td>
                             <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-medium text-slate-800 leading-tight">${item.keterangan}</td>
-                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-bold text-emerald-600 text-right">${item.masuk > 0 ? '+' + item.masuk.toLocaleString('id-ID') : ''}</td>
-                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-bold text-rose-500 text-right">${item.keluar > 0 ? '-' + item.keluar.toLocaleString('id-ID') : ''}</td>
-                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-black text-blue-600 text-right bg-slate-50/50">${(item.sisa || 0).toLocaleString('id-ID')}</td>
+                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-bold text-emerald-600 text-right">${item.masuk > 0 ? '+' + Number(item.masuk).toLocaleString('id-ID') : ''}</td>
+                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-bold text-rose-500 text-right">${item.keluar > 0 ? '-' + Number(item.keluar).toLocaleString('id-ID') : ''}</td>
+                            <td class="py-1 px-1.5 border border-slate-200 text-[9.5px] font-black text-blue-600 text-right bg-slate-50/50">${(Number(item.sisa) || 0).toLocaleString('id-ID')}</td>
                         </tr>
                     `).join('');
 
@@ -603,7 +655,7 @@
                             <div class="flex justify-between items-center border-b border-white/10 pb-2">
                                 <div>
                                     <p class="text-[9px] text-emerald-200 uppercase tracking-wider font-semibold">Total Seluruh Aset</p>
-                                    <h3 class="text-lg font-black text-white">Rp ${(Number(dbAdminState.saldoOperasional||0) + Number(dbAdminState.tabunganUtama||0)).toLocaleString('id-ID')}</h3>
+                                    <h3 class="text-lg font-black text-white">Rp ${totalSeluruhAset.toLocaleString('id-ID')}</h3>
                                 </div>
                                 <button onclick="bukaModalTabungan()" class="bg-white text-emerald-800 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-md hover:bg-emerald-50 active:scale-95 transition-all">
                                     <i class="fa-solid fa-plus mr-1"></i>Catat Transaksi
@@ -615,17 +667,17 @@
                                 <div onclick="switchSubTabKeuangan('dompet')" class="cursor-pointer p-2 rounded-xl border transition-all ${window.activeTabKeuangan === 'dompet' ? 'bg-white/25 border-white text-white font-bold shadow-sm' : 'bg-white/5 border-white/10 text-emerald-200 opacity-80'}">
                                     <div class="flex items-center space-x-1 mb-0.5">
                                         <i class="fa-solid fa-wallet text-[10px]"></i>
-                                        <span class="text-[9px] uppercase">Saldo </span>
+                                        <span class="text-[9px] uppercase">Saldo Operasional</span>
                                     </div>
-                                    <p class="text-xs font-black">Rp ${Number(dbAdminState.saldoOperasional || 0).toLocaleString('id-ID')}</p>
+                                    <p class="text-xs font-black">Rp ${saldoOperasionalTampil.toLocaleString('id-ID')}</p>
                                 </div>
 
                                 <div onclick="switchSubTabKeuangan('tabungan')" class="cursor-pointer p-2 rounded-xl border transition-all ${window.activeTabKeuangan === 'tabungan' ? 'bg-white/25 border-white text-white font-bold shadow-sm' : 'bg-white/5 border-white/10 text-teal-200 opacity-80'}">
                                     <div class="flex items-center space-x-1 mb-0.5">
                                         <i class="fa-solid fa-piggy-bank text-[10px]"></i>
-                                        <span class="text-[9px] uppercase">Tabungan </span>
+                                        <span class="text-[9px] uppercase">Tabungan Utama</span>
                                     </div>
-                                    <p class="text-xs font-black">Rp ${Number(dbAdminState.tabunganUtama || 0).toLocaleString('id-ID')}</p>
+                                    <p class="text-xs font-black">Rp ${rawTabungan.toLocaleString('id-ID')}</p>
                                 </div>
                             </div>
 
@@ -636,11 +688,29 @@
 
                         </div>
 
-                        <!-- JUDUL RIWAYAT TABEL TERPILIH -->
-                        <div class="flex justify-between items-center px-1">
+                        <!-- KONTROL PILIH BULAN & TAHUN -->
+                        <div class="flex justify-between items-center px-1 pt-1">
                             <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                Riwayat: <span class="text-emerald-600">${window.activeTabKeuangan === 'tabungan' ? 'Transaksi' : 'Bulan ini'}</span>
+                                Riwayat Transaksi
                             </span>
+                            
+                            <!-- DROPDOWN FILTER BULAN -->
+                            <div class="flex items-center space-x-1.5">
+                                <select onchange="gantiBulanRiwayat(this.value)" class="bg-white border border-slate-200 text-slate-700 text-[10px] font-bold rounded-xl px-2.5 py-1 focus:outline-none focus:border-emerald-500 shadow-2xs cursor-pointer">
+                                    <option value="01" ${window.selectedBulanFilter === '01' ? 'selected' : ''}>Januari</option>
+                                    <option value="02" ${window.selectedBulanFilter === '02' ? 'selected' : ''}>Februari</option>
+                                    <option value="03" ${window.selectedBulanFilter === '03' ? 'selected' : ''}>Maret</option>
+                                    <option value="04" ${window.selectedBulanFilter === '04' ? 'selected' : ''}>April</option>
+                                    <option value="05" ${window.selectedBulanFilter === '05' ? 'selected' : ''}>Mei</option>
+                                    <option value="06" ${window.selectedBulanFilter === '06' ? 'selected' : ''}>Juni</option>
+                                    <option value="07" ${window.selectedBulanFilter === '07' ? 'selected' : ''}>Juli</option>
+                                    <option value="08" ${window.selectedBulanFilter === '08' ? 'selected' : ''}>Agustus</option>
+                                    <option value="09" ${window.selectedBulanFilter === '09' ? 'selected' : ''}>September</option>
+                                    <option value="10" ${window.selectedBulanFilter === '10' ? 'selected' : ''}>Oktober</option>
+                                    <option value="11" ${window.selectedBulanFilter === '11' ? 'selected' : ''}>November</option>
+                                    <option value="12" ${window.selectedBulanFilter === '12' ? 'selected' : ''}>Desember</option>
+                                </select>
+                            </div>
                         </div>
 
                         <!-- KOTAK TABEL RIWAYAT MODEL GOOGLE SHEETS -->
@@ -874,6 +944,14 @@
                     muatDataOtomatisAdmin();
                 }
             });
+        }
+
+        // ====================================================================
+        // FUNGSI GANTI BULAN RIWAYAT (TARUH DI SINI)
+        // ====================================================================
+        function gantiBulanRiwayat(bulanVal) {
+            window.selectedBulanFilter = bulanVal;
+            switchTabAdmin('tabungan');
         }
 
         function logoutApp() {
