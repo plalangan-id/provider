@@ -168,12 +168,12 @@
        [SEKAT LOGIKA JAVASCRIPT UTAMA]
        ======================================================================== -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzqU0DFsCpHcjHTkbrnezy8eDRQOn0IjNEJ9cx_5arW--F6-WUWqAZ5GJHgLIuLo28b/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxZ5YF0mxsovufK82Y3mV6qv6UVnljBtl4S9BSDy1YL3hZPftfSTg5B5PqQKccIJDJx/exec";
 
         let activeUserData = {
             nama: "-", idUser: "-", formattedTagihan: "0", formattedBasePaket: "0", qtyJumlah: "0", bulanIni: "-",
             isLunas: false, statusTeks: "Belum Bayar", nominalAsli: "0",
-            vouchers: [], iuran: []
+            vouchers: [], iuran: [], riwayatWifi: []
         };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -239,7 +239,8 @@
                             statusTeks: statusLunasDariServer ? "Lunas" : "Belum Bayar",
                             nominalAsli: nominalAsliTerbayar,
                             vouchers: response.vouchers || [],
-                            iuran: Array.isArray(response.iuran) ? response.iuran : (response.data.iuran || [])
+                            iuran: Array.isArray(response.iuran) ? response.iuran : (response.data.iuran || []),
+                            riwayatWifi: Array.isArray(response.riwayatWifi) ? response.riwayatWifi : []
                         };
 
                         document.getElementById('user-nama').innerText = activeUserData.nama;
@@ -286,21 +287,47 @@
             // [SEKAT TAB 1] TAB HOME (GRID 8 MENU UTAMA + STRUK RIWAYAT TERBARU DI ATAS)
             // ====================================================================
             if (tabName === 'home') {
-    // 1. Data Riwayat Wifi Bulan Ini (Mode Pipih 1 Baris)
-    const strukWifiHTML = `
-        <div class="p-1.5 px-2 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between text-[9.5px]">
-            <div class="flex items-center space-x-1.5 min-w-0">
-                <span class="font-black text-blue-600 uppercase shrink-0">BAYAR WIFI</span>
-                <span class="text-slate-400 font-medium truncate">• ${activeUserData.bulanIni}</span>
+    // 1. Data Riwayat Wifi Lengkap (Januari - Sekarang, Terbaru di Atas)
+    const riwayatWifiList = [...(activeUserData.riwayatWifi || [])].reverse();
+    let strukWifiHTML = "";
+
+    if (riwayatWifiList.length > 0) {
+        strukWifiHTML = riwayatWifiList.map(item => {
+            const isLunasWifi = (item.status || '').toLowerCase() === 'lunas';
+            const periodeWifi = item.periodeBulan || activeUserData.bulanIni;
+            const nominalWifi = Number(item.nominal || 0).toLocaleString('id-ID');
+
+            return `
+                <div class="p-1.5 px-2 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between text-[9.5px]">
+                    <div class="flex items-center space-x-1.5 min-w-0">
+                        <span class="font-black text-blue-600 uppercase shrink-0">BAYAR WIFI</span>
+                        <span class="text-slate-400 font-medium truncate">• ${periodeWifi}</span>
+                    </div>
+                    <div class="flex items-center space-x-1.5 shrink-0">
+                        <span class="font-extrabold text-slate-800">Rp ${nominalWifi}</span>
+                        <span class="text-[7.5px] font-black px-1.5 py-0.2 rounded-full ${isLunasWifi ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                            ${isLunasWifi ? 'LUNAS' : 'PENDING'}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        strukWifiHTML = `
+            <div class="p-1.5 px-2 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between text-[9.5px]">
+                <div class="flex items-center space-x-1.5 min-w-0">
+                    <span class="font-black text-blue-600 uppercase shrink-0">BAYAR WIFI</span>
+                    <span class="text-slate-400 font-medium truncate">• ${activeUserData.bulanIni}</span>
+                </div>
+                <div class="flex items-center space-x-1.5 shrink-0">
+                    <span class="font-extrabold text-slate-800">Rp ${activeUserData.formattedBasePaket}</span>
+                    <span class="text-[7.5px] font-black px-1.5 py-0.2 rounded-full ${activeUserData.isLunas ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                        ${activeUserData.isLunas ? 'LUNAS' : 'PENDING'}
+                    </span>
+                </div>
             </div>
-            <div class="flex items-center space-x-1.5 shrink-0">
-                <span class="font-extrabold text-slate-800">Rp ${activeUserData.formattedBasePaket}</span>
-                <span class="text-[7.5px] font-black px-1.5 py-0.2 rounded-full ${activeUserData.isLunas ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
-                    ${activeUserData.isLunas ? 'LUNAS' : 'PENDING'}
-                </span>
-            </div>
-        </div>
-    `;
+        `;
+    }
 
     // 2. Data Riwayat Iuran Kampung (Mode Pipih 1 Baris)
     const riwayatIuran = [...(activeUserData.iuran || [])].reverse();
