@@ -391,21 +391,30 @@
                     </button>
                 </section>
 
-                <section class="grid grid-cols-3 gap-3">
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100/80">
-                        <p class="text-[10px] font-semibold text-slate-400">Total Member</p>
-                        <p class="text-2xl font-black text-blue-600 mt-1">${dbAdminState.totalMember}</p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Anggota</p>
+                <!-- KARTU STATISTIK MINI 3 WARNA PEMBEDA -->
+                <section class="grid grid-cols-3 gap-2">
+                    <!-- KARTU 1: TOTAL MEMBER (BIRU CYAN) -->
+                    <div class="bg-gradient-to-br from-blue-600 to-cyan-500 p-2.5 rounded-2xl text-white shadow-sm text-center relative overflow-hidden">
+                        <div class="absolute -right-2 -bottom-2 w-8 h-8 bg-white/10 rounded-full"></div>
+                        <p class="text-[8.5px] font-bold text-blue-100 uppercase tracking-wider truncate">Total Member</p>
+                        <p class="text-lg font-black leading-tight my-0.5">${dbAdminState.totalMember}</p>
+                        <p class="text-[8px] font-medium text-blue-100/80">Anggota</p>
                     </div>
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100/80">
-                        <p class="text-[10px] font-semibold text-slate-400">Sudah Bayar</p>
-                        <p class="text-2xl font-black text-emerald-500 mt-1">${dbAdminState.lunasCount}</p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Lunas</p>
+
+                    <!-- KARTU 2: SUDAH BAYAR (HIJAU EMERALD) -->
+                    <div class="bg-gradient-to-br from-emerald-600 to-teal-500 p-2.5 rounded-2xl text-white shadow-sm text-center relative overflow-hidden">
+                        <div class="absolute -right-2 -bottom-2 w-8 h-8 bg-white/10 rounded-full"></div>
+                        <p class="text-[8.5px] font-bold text-emerald-100 uppercase tracking-wider truncate">Sudah Bayar</p>
+                        <p class="text-lg font-black leading-tight my-0.5">${dbAdminState.lunasCount}</p>
+                        <p class="text-[8px] font-medium text-emerald-100/80">Lunas</p>
                     </div>
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100/80">
-                        <p class="text-[10px] font-semibold text-slate-400">Belum Bayar</p>
-                        <p class="text-2xl font-black text-red-500 mt-1">${dbAdminState.pendingCount}</p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Pending</p>
+
+                    <!-- KARTU 3: BELUM BAYAR (MERAH ROSE) -->
+                    <div class="bg-gradient-to-br from-rose-600 to-red-500 p-2.5 rounded-2xl text-white shadow-sm text-center relative overflow-hidden">
+                        <div class="absolute -right-2 -bottom-2 w-8 h-8 bg-white/10 rounded-full"></div>
+                        <p class="text-[8.5px] font-bold text-rose-100 uppercase tracking-wider truncate">Belum Bayar</p>
+                        <p class="text-lg font-black leading-tight my-0.5">${dbAdminState.pendingCount}</p>
+                        <p class="text-[8px] font-medium text-rose-100/80">Pending</p>
                     </div>
                 </section>
 
@@ -662,22 +671,34 @@
                                 </button>
                             </div>
 
-                            <!-- TOMBOL TOGGLE SWITCH (DOMPET VS TABUNGAN) -->
-                            <div class="grid grid-cols-2 gap-2">
-                                <div onclick="switchSubTabKeuangan('dompet')" class="cursor-pointer p-2 rounded-xl border transition-all ${window.activeTabKeuangan === 'dompet' ? 'bg-white/25 border-white text-white font-bold shadow-sm' : 'bg-white/5 border-white/10 text-emerald-200 opacity-80'}">
-                                    <div class="flex items-center space-x-1 mb-0.5">
-                                        <i class="fa-solid fa-wallet text-[10px]"></i>
-                                        <span class="text-[9px] uppercase">Saldo Operasional</span>
+                            <!-- TOMBOL TOGGLE SWITCH (DOMPET VS TABUNGAN - KONTRAS WARNA) -->
+                            <div class="grid grid-cols-2 gap-2.5">
+                                <!-- TAB 1: SALDO OPERASIONAL (TEMA BIRU / CYAN) -->
+                                <div onclick="switchSubTabKeuangan('dompet')" class="cursor-pointer p-2.5 rounded-xl border transition-all duration-200 ${window.activeTabKeuangan === 'dompet' 
+                                    ? 'bg-gradient-to-br from-blue-500 to-cyan-600 border-white text-white shadow-md scale-[1.02]' 
+                                    : 'bg-slate-900/35 border-white/15 text-cyan-200/80 hover:bg-slate-900/50'}">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="flex items-center space-x-1.5">
+                                            <i class="fa-solid fa-wallet text-[11px] ${window.activeTabKeuangan === 'dompet' ? 'text-white' : 'text-cyan-400'}"></i>
+                                            <span class="text-[9px] uppercase font-bold tracking-wide">Saldo Operasional</span>
+                                        </div>
+                                        ${window.activeTabKeuangan === 'dompet' ? '<span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>' : ''}
                                     </div>
-                                    <p class="text-xs font-black">Rp ${saldoOperasionalTampil.toLocaleString('id-ID')}</p>
+                                    <p class="text-xs font-black ${window.activeTabKeuangan === 'dompet' ? 'text-white' : 'text-white/80'}">Rp ${saldoOperasionalTampil.toLocaleString('id-ID')}</p>
                                 </div>
 
-                                <div onclick="switchSubTabKeuangan('tabungan')" class="cursor-pointer p-2 rounded-xl border transition-all ${window.activeTabKeuangan === 'tabungan' ? 'bg-white/25 border-white text-white font-bold shadow-sm' : 'bg-white/5 border-white/10 text-teal-200 opacity-80'}">
-                                    <div class="flex items-center space-x-1 mb-0.5">
-                                        <i class="fa-solid fa-piggy-bank text-[10px]"></i>
-                                        <span class="text-[9px] uppercase">Tabungan Utama</span>
+                                <!-- TAB 2: TABUNGAN UTAMA (TEMA EMAS / AMBER) -->
+                                <div onclick="switchSubTabKeuangan('tabungan')" class="cursor-pointer p-2.5 rounded-xl border transition-all duration-200 ${window.activeTabKeuangan === 'tabungan' 
+                                    ? 'bg-gradient-to-br from-amber-500 to-orange-500 border-white text-white shadow-md scale-[1.02]' 
+                                    : 'bg-slate-900/35 border-white/15 text-amber-200/80 hover:bg-slate-900/50'}">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="flex items-center space-x-1.5">
+                                            <i class="fa-solid fa-piggy-bank text-[11px] ${window.activeTabKeuangan === 'tabungan' ? 'text-white' : 'text-amber-400'}"></i>
+                                            <span class="text-[9px] uppercase font-bold tracking-wide">Tabungan Utama</span>
+                                        </div>
+                                        ${window.activeTabKeuangan === 'tabungan' ? '<span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>' : ''}
                                     </div>
-                                    <p class="text-xs font-black">Rp ${rawTabungan.toLocaleString('id-ID')}</p>
+                                    <p class="text-xs font-black ${window.activeTabKeuangan === 'tabungan' ? 'text-white' : 'text-white/80'}">Rp ${rawTabungan.toLocaleString('id-ID')}</p>
                                 </div>
                             </div>
 
@@ -690,9 +711,14 @@
 
                         <!-- KONTROL PILIH BULAN & TAHUN -->
                         <div class="flex justify-between items-center px-1 pt-1">
-                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                Riwayat Transaksi
-                            </span>
+                            <div class="flex items-center space-x-1.5">
+                                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                    Riwayat
+                                </span>
+                                <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-md uppercase ${window.activeTabKeuangan === 'dompet' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}">
+                                    ${window.activeTabKeuangan === 'dompet' ? 'Operasional' : 'Tabungan Utama'}
+                                </span>
+                            </div>
                             
                             <!-- DROPDOWN FILTER BULAN -->
                             <div class="flex items-center space-x-1.5">
